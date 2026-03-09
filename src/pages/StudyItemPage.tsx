@@ -1,8 +1,92 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useStudyItem } from '../hooks/useStudyData'
 import { useReviewSystem } from '../hooks/useReviewSystem'
 import { STUDY_TYPES } from '../utils/constants'
+
+function isKanji(char: string) {
+  const code = char.codePointAt(0) ?? 0
+  return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf)
+}
+
+function isKana(char: string) {
+  const code = char.codePointAt(0) ?? 0
+  return (
+    (code >= 0x3040 && code <= 0x309f) || // hiragana
+    (code >= 0x30a0 && code <= 0x30ff) // katakana
+  )
+}
+
+function buildFuriganaMap(japanese: string, reading: string) {
+  const result: Array<{ char: string; reading: string | null }> = []
+  let rIdx = 0
+
+  const nextKanaIndex = (start: number) => {
+    for (let i = start; i < japanese.length; i += 1) {
+      if (isKana(japanese[i])) return i
+    }
+    return -1
+  }
+
+  for (let i = 0; i < japanese.length; i += 1) {
+    const char = japanese[i]
+
+    if (isKana(char) || /[。、！？]/.test(char)) {
+      const readChar = reading[rIdx] ?? ''
+      result.push({ char, reading: readChar })
+      rIdx += 1
+      continue
+    }
+
+    if (isKanji(char)) {
+      const nextKanaPos = nextKanaIndex(i + 1)
+      if (nextKanaPos === -1) {
+        // no more kana, take rest
+        const rest = reading.slice(rIdx) || ''
+        result.push({ char, reading: rest })
+        rIdx = reading.length
+      } else {
+        // try to find boundary in reading where next kana begins
+        const nextKanaChar = japanese[nextKanaPos]
+        let boundary = rIdx
+        while (boundary < reading.length && reading[boundary] !== nextKanaChar) {
+          boundary += 1
+        }
+        const furigana = reading.slice(rIdx, boundary) || ''
+        result.push({ char, reading: furigana })
+        rIdx = boundary
+      }
+      continue
+    }
+
+    // Fallback: just render plain
+    const readChar = reading[rIdx] ?? ''
+    result.push({ char, reading: readChar })
+    rIdx += 1
+  }
+
+  return result
+}
+
+function FuriganaText({ japanese, reading }: { japanese: string; reading: string }) {
+  const mapping = useMemo(() => buildFuriganaMap(japanese, reading), [japanese, reading])
+
+  return (
+    <span>
+      {mapping.map((item, index) => {
+        const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
+        return (
+          <span key={`${item.char}-${index}`} className="furigana-wrapper">
+            <span className="furigana-target">{item.char}</span>
+            {showTooltip && (
+              <span className="furigana-tooltip">{item.reading}</span>
+            )}
+          </span>
+        )
+      })}
+    </span>
+  )
+}
 
 export function StudyItemPage() {
   const params = useParams<{ level: string; type: string; id: string }>()
@@ -68,7 +152,13 @@ export function StudyItemPage() {
         <button type="button" className="link-button" onClick={() => navigate(-1)}>
         ← Voltar
         </button>
-        <h1>{item.japanese}</h1>
+        <h1>
+          {item.reading ? (
+            <FuriganaText japanese={item.japanese} reading={item.reading} />
+          ) : (
+            item.japanese
+          )}
+        </h1>
         {item.reading && <p className="subheading">{item.reading}</p>}
         <p className="translation">{item.translation}</p>
       </header>
@@ -84,8 +174,13 @@ export function StudyItemPage() {
           <ul className="example-list">
             {item.examples.map((example) => (
               <li key={example.japanese} className="example-item">
-                <div className="example-item__japanese">{example.japanese}</div>
-                {example.reading && <div className="example-item__reading">{example.reading}</div>}
+                <div className="example-item__japanese">
+                  {example.reading ? (
+                    <FuriganaText japanese={example.japanese} reading={example.reading} />
+                  ) : (
+                    example.japanese
+                  )}
+                </div>
                 <div className="example-item__translation">{example.translation}</div>
               </li>
             ))}
