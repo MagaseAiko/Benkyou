@@ -7,7 +7,6 @@ type Props = {
 }
 
 export function StudyItemCard({ item }: Props) {
-  const label = item.type === 'grammar' ? 'Gramática' : 'Vocabulário'
   const { progress } = useReviewSystem()
 
   const isStudiedOrReviewing =
