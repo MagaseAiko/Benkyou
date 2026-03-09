@@ -1,0 +1,46 @@
+[
+  {
+    "id": "n5-grammar-1",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "〜あります／〜います",
+    "reading": "〜あります／〜います",
+    "translation": "Existence of inanimate/animate objects.",
+    "explanation": "Use あります for inanimate objects and います for living beings. This is one of the first grammar points in JLPT N5.",
+    "examples": [
+      {
+        "japanese": "教室に先生がいます。",
+        "reading": "きょうしつにせんせいがいます。",
+        "translation": "There is a teacher in the classroom."
+      },
+      {
+        "japanese": "机の上に本があります。",
+        "reading": "つくえのうえにほんがあります。",
+        "translation": "There is a book on the desk."
+      }
+    ],
+    "notes": "Lembre-se: いる (imasu) para seres vivos; ある (arimasu) para objetos."
+  },
+    {
+    "id": "n5-grammar-2",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "〜あります／〜います",
+    "reading": "〜あります／〜います",
+    "translation": "Existence of inanimate/animate objects.",
+    "explanation": "Use あります for inanimate objects and います for living beings. This is one of the first grammar points in JLPT N5.",
+    "examples": [
+      {
+        "japanese": "教室に先生がいます。",
+        "reading": "きょうしつにせんせいがいます。",
+        "translation": "There is a teacher in the classroom."
+      },
+      {
+        "japanese": "机の上に本があります。",
+        "reading": "つくえのうえにほんがあります。",
+        "translation": "There is a book on the desk."
+      }
+    ],
+    "notes": "Lembre-se: いる (imasu) para seres vivos; ある (arimasu) para objetos."
+  }
+]

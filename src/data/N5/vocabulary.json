@@ -1,0 +1,19 @@
+[
+  {
+    "id": "n5-vocab-1",
+    "type": "vocabulary",
+    "level": "N5",
+    "japanese": "学生",
+    "reading": "がくせい",
+    "translation": "student",
+    "explanation": "A person who studies at an educational institution.",
+    "examples": [
+      {
+        "japanese": "田中さんは大学の学生です。",
+        "reading": "たなかさんはだいがくのがくせいです。",
+        "translation": "Tanaka is a university student."
+      }
+    ],
+    "notes": "Comum em frases de apresentação."
+  }
+]
