@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { StudyItem } from '../types'
 
 type Props = {
@@ -91,18 +91,18 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading?: strin
 export function Flashcard({ item, onQuality }: Props) {
   const [showAnswer, setShowAnswer] = useState(false)
 
-  const frontText = useMemo(() => {
-    if (item.type === 'vocabulary') {
-      return `${item.japanese} ${item.reading ? `(${item.reading})` : ''}`.trim()
-    }
+  useEffect(() => {
+    setShowAnswer(false)
+  }, [item.id])
 
-    return item.japanese
-  }, [item])
+  const handleQuality = (quality: 'forgot' | 'continue' | 'remembered') => {
+    onQuality(quality)
+    setShowAnswer(false)
+  }
 
   return (
     <article className="flashcard">
       <header className="flashcard__header">
-        <h2>Revisão</h2>
         <p className="flashcard__meta">
           {item.level} • {item.type}
         </p>
@@ -143,17 +143,18 @@ export function Flashcard({ item, onQuality }: Props) {
 
       {showAnswer && (
         <footer className="flashcard__actions">
-          <button className="button" onClick={() => onQuality('forgot')}>
+          <button className="button" onClick={() => handleQuality('forgot')}>
             Esqueci
           </button>
-          <button className="button" onClick={() => onQuality('continue')}>
+          <button className="button" onClick={() => handleQuality('continue')}>
             Continuar estudando
           </button>
-          <button className="button button--primary" onClick={() => onQuality('remembered')}>
+          <button className="button button--primary" onClick={() => handleQuality('remembered')}>
             Decorei
           </button>
         </footer>
       )}
+
     </article>
   )
 }
