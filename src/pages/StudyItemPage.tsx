@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useStudyItem } from '../hooks/useStudyData'
 import { useReviewSystem } from '../hooks/useReviewSystem'
@@ -9,7 +10,9 @@ export function StudyItemPage() {
   const { id, type } = params
 
   const item = useStudyItem(id ?? '')
-  const { addToReview, markMastered } = useReviewSystem()
+  const { addToReview, markMastered, resetItemProgress } = useReviewSystem()
+
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const isValidRoute =
     !!params.level &&
@@ -23,14 +26,35 @@ export function StudyItemPage() {
     return <Navigate to="/" replace />
   }
 
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message)
+  }, [])
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const timer = window.setTimeout(() => setToastMessage(null), 2500)
+    return () => window.clearTimeout(timer)
+  }, [toastMessage])
+
   const handleMarkMastered = () => {
     markMastered(item.id)
-    navigate(-1)
+    showToast('Item marcado como dominado — não será adicionado à revisão.')
+    window.setTimeout(() => navigate(-1), 2000)
+  }
+
+  const handleResetItemProgress = () => {
+    const confirmed = window.confirm(
+      'Tem certeza? Isso vai apagar o progresso deste item e reiniciar seu estado.',
+    )
+    if (!confirmed) return
+
+    resetItemProgress(item.id)
+    showToast('Progresso do item reiniciado.')
   }
 
   const handleAddToReview = () => {
     addToReview(item.id)
-    alert('Item adicionado para revisão!')
+    showToast('Item adicionado para revisão!')
   }
 
   return (
@@ -78,7 +102,26 @@ export function StudyItemPage() {
         <button className="button button--primary" type="button" onClick={handleMarkMastered}>
           Já sei
         </button>
+        <button className="button" type="button" onClick={handleResetItemProgress}>
+          Reiniciar item
+        </button>
       </footer>
+
+      {toastMessage && (
+        <div className="toast" role="status" aria-live="polite">
+          <div className="toast__content">
+            <span>{toastMessage}</span>
+            <button
+              type="button"
+              className="toast__close"
+              aria-label="Fechar"
+              onClick={() => setToastMessage(null)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

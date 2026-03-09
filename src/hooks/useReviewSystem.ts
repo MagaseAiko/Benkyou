@@ -156,6 +156,18 @@ export function useReviewSystem() {
   const totalMastered = progress.masteredItems.length
   const totalStudying = progress.studyingItems.length
 
+  const resetItemProgress = useCallback(
+    (itemId: string) => {
+      setProgress((current) => ({
+        ...current,
+        reviewQueue: current.reviewQueue.filter((item) => item.id !== itemId),
+        masteredItems: current.masteredItems.filter((id) => id !== itemId),
+        studyingItems: current.studyingItems.filter((id) => id !== itemId),
+      }))
+    },
+    [setProgress],
+  )
+
   const resetProgress = useCallback(() => {
     setProgress(DEFAULT_PROGRESS)
   }, [setProgress])
@@ -169,6 +181,7 @@ export function useReviewSystem() {
     removeFromReview,
     markMastered,
     updateReviewForQuality,
+    resetItemProgress,
     resetProgress,
   }
 }
