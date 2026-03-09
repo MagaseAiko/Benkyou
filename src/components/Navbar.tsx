@@ -4,6 +4,7 @@ const navItems = [
   { to: '/', label: 'Início' },
   { to: '/review', label: 'Revisão' },
   { to: '/dashboard', label: 'Dashboard' },
+  { to: '/options', label: 'Opções' },
 ]
 
 export function Navbar() {

@@ -5,6 +5,7 @@ import { LevelPage } from './pages/LevelPage'
 import { StudyItemPage } from './pages/StudyItemPage'
 import { ReviewPage } from './pages/ReviewPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { OptionsPage } from './pages/OptionsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 import './App.css'
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/level/:level/:type/:id" element={<StudyItemPage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/options" element={<OptionsPage />} />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>

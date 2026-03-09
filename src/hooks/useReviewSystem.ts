@@ -156,6 +156,10 @@ export function useReviewSystem() {
   const totalMastered = progress.masteredItems.length
   const totalStudying = progress.studyingItems.length
 
+  const resetProgress = useCallback(() => {
+    setProgress(DEFAULT_PROGRESS)
+  }, [setProgress])
+
   return {
     progress,
     reviewQueueDue,
@@ -165,5 +169,6 @@ export function useReviewSystem() {
     removeFromReview,
     markMastered,
     updateReviewForQuality,
+    resetProgress,
   }
 }
