@@ -3,44 +3,280 @@
     "id": "n5-grammar-1",
     "type": "grammar",
     "level": "N5",
-    "japanese": "〜あります／〜います",
-    "reading": "〜あります／〜います",
-    "translation": "Existence of inanimate/animate objects.",
-    "explanation": "Use あります for inanimate objects and います for living beings. This is one of the first grammar points in JLPT N5.",
+    "japanese": "〜ちゃいけない / 〜じゃいけない",
+    "reading": "chai ikenai / ja ikenai",
+    "translation": "Não pode / É proibido",
+    "explanation": "Usado para dizer que algo é proibido ou não permitido. A forma ちゃ é contração de ては, então a forma completa é 〜てはいけない.",
     "examples": [
       {
-        "japanese": "教室に先生がいます。",
-        "reading": "きょうしつにせんせいがいます。",
-        "translation": "There is a teacher in the classroom."
+        "japanese": "ここでタバコを吸っちゃいけません。",
+        "reading": "ここでたばこをすっちゃいけません。",
+        "translation": "Não pode fumar aqui."
       },
       {
-        "japanese": "机の上に本があります。",
-        "reading": "つくえのうえにほんがあります。",
-        "translation": "There is a book on the desk."
+        "japanese": "学校でスマホを使っちゃいけない。",
+        "reading": "がっこうですまほをつかっちゃいけない。",
+        "translation": "Não pode usar celular na escola."
       }
     ],
-    "notes": "Lembre-se: いる (imasu) para seres vivos; ある (arimasu) para objetos."
+    "notes": "Forma informal de 〜てはいけない."
   },
-    {
+  {
     "id": "n5-grammar-2",
     "type": "grammar",
     "level": "N5",
-    "japanese": "〜あります／〜います",
-    "reading": "〜あります／〜います",
-    "translation": "Existence of inanimate/animate objects.",
-    "explanation": "Use あります for inanimate objects and います for living beings. This is one of the first grammar points in JLPT N5.",
+    "japanese": "だ / です",
+    "reading": "da / desu",
+    "translation": "Verbo 'ser' ou 'é'",
+    "explanation": "Usado para afirmar que algo é alguma coisa. です é a forma educada e だ é a forma informal.",
     "examples": [
       {
-        "japanese": "教室に先生がいます。",
-        "reading": "きょうしつにせんせいがいます。",
-        "translation": "There is a teacher in the classroom."
+        "japanese": "私は学生です。",
+        "reading": "わたしはがくせいです。",
+        "translation": "Eu sou estudante."
       },
+      {
+        "japanese": "彼は先生だ。",
+        "reading": "かれはせんせいだ。",
+        "translation": "Ele é professor."
+      }
+    ],
+    "notes": "Usado com substantivos e adjetivos な."
+  },
+  {
+    "id": "n5-grammar-3",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "だけ",
+    "reading": "dake",
+    "translation": "Apenas / somente",
+    "explanation": "Indica limitação. Algo é apenas aquilo e nada mais.",
+    "examples": [
+      {
+        "japanese": "水だけ飲みます。",
+        "reading": "みずだけのみます。",
+        "translation": "Eu bebo apenas água."
+      },
+      {
+        "japanese": "今日は日本語だけ勉強しました。",
+        "reading": "きょうはにほんごだけべんきょうしました。",
+        "translation": "Hoje eu estudei apenas japonês."
+      }
+    ],
+    "notes": "Equivalente a 'só' ou 'somente'."
+  },
+  {
+    "id": "n5-grammar-4",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "だろう",
+    "reading": "darou",
+    "translation": "Provavelmente / acho que",
+    "explanation": "Usado para expressar suposição ou opinião do falante.",
+    "examples": [
+      {
+        "japanese": "明日は雨だろう。",
+        "reading": "あしたはあめだろう。",
+        "translation": "Provavelmente amanhã vai chover."
+      },
+      {
+        "japanese": "彼は来ないだろう。",
+        "reading": "かれはこないだろう。",
+        "translation": "Ele provavelmente não virá."
+      }
+    ],
+    "notes": "Forma mais informal de でしょう."
+  },
+  {
+    "id": "n5-grammar-5",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "で",
+    "reading": "de",
+    "translation": "Em / com / por",
+    "explanation": "Partícula usada para indicar o local onde uma ação acontece ou o meio utilizado.",
+    "examples": [
+      {
+        "japanese": "学校で勉強します。",
+        "reading": "がっこうでべんきょうします。",
+        "translation": "Estudo na escola."
+      },
+      {
+        "japanese": "バスで行きます。",
+        "reading": "ばすでいきます。",
+        "translation": "Vou de ônibus."
+      }
+    ],
+    "notes": "Indica local da ação."
+  },
+  {
+    "id": "n5-grammar-6",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "でも",
+    "reading": "demo",
+    "translation": "Mas / porém",
+    "explanation": "Usado para introduzir contraste ou oposição.",
+    "examples": [
+      {
+        "japanese": "日本語は難しい。でも面白い。",
+        "reading": "にほんごはむずかしい。でもおもしろい。",
+        "translation": "Japonês é difícil, mas é interessante."
+      }
+    ],
+    "notes": "Muito comum em conversas."
+  },
+  {
+    "id": "n5-grammar-7",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "でしょう",
+    "reading": "deshou",
+    "translation": "Provavelmente / não é?",
+    "explanation": "Usado para expressar suposição ou confirmar algo com o ouvinte.",
+    "examples": [
+      {
+        "japanese": "明日は寒いでしょう。",
+        "reading": "あしたはさむいでしょう。",
+        "translation": "Amanhã provavelmente estará frio."
+      }
+    ],
+    "notes": "Versão educada de だろう."
+  },
+  {
+    "id": "n5-grammar-8",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "どんな",
+    "reading": "donna",
+    "translation": "Que tipo de",
+    "explanation": "Usado para perguntar sobre a natureza ou característica de algo.",
+    "examples": [
+      {
+        "japanese": "どんな音楽が好きですか。",
+        "reading": "どんなおんがくがすきですか。",
+        "translation": "Que tipo de música você gosta?"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "n5-grammar-9",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "どうして",
+    "reading": "doushite",
+    "translation": "Por quê?",
+    "explanation": "Usado para perguntar o motivo ou razão de algo.",
+    "examples": [
+      {
+        "japanese": "どうして日本語を勉強していますか。",
+        "reading": "どうしてにほんごをべんきょうしていますか。",
+        "translation": "Por que você está estudando japonês?"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "n5-grammar-10",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "どうやって",
+    "reading": "douyatte",
+    "translation": "Como / de que forma",
+    "explanation": "Usado para perguntar o método de fazer algo.",
+    "examples": [
+      {
+        "japanese": "どうやってここに来ましたか。",
+        "reading": "どうやってここにきましたか。",
+        "translation": "Como você chegou aqui?"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "n5-grammar-11",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "が",
+    "reading": "ga",
+    "translation": "Partícula de sujeito",
+    "explanation": "Marca o sujeito da frase, especialmente quando é nova informação.",
+    "examples": [
+      {
+        "japanese": "猫がいます。",
+        "reading": "ねこがいます。",
+        "translation": "Tem um gato."
+      }
+    ],
+    "notes": "Diferente de は, que marca o tópico."
+  },
+  {
+    "id": "n5-grammar-12",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "があります",
+    "reading": "ga arimasu",
+    "translation": "Há / existe (objeto)",
+    "explanation": "Usado para dizer que algo inanimado existe.",
+    "examples": [
       {
         "japanese": "机の上に本があります。",
         "reading": "つくえのうえにほんがあります。",
-        "translation": "There is a book on the desk."
+        "translation": "Há um livro em cima da mesa."
       }
     ],
-    "notes": "Lembre-se: いる (imasu) para seres vivos; ある (arimasu) para objetos."
+    "notes": "Usado apenas para coisas."
+  },
+  {
+    "id": "n5-grammar-13",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "がほしい",
+    "reading": "ga hoshii",
+    "translation": "Querer algo",
+    "explanation": "Usado para expressar desejo por objetos.",
+    "examples": [
+      {
+        "japanese": "新しい車がほしいです。",
+        "reading": "あたらしいくるまがほしいです。",
+        "translation": "Eu quero um carro novo."
+      }
+    ],
+    "notes": "Não usado para ações."
+  },
+  {
+    "id": "n5-grammar-14",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "がいます",
+    "reading": "ga imasu",
+    "translation": "Há / existe (ser vivo)",
+    "explanation": "Usado para indicar existência de pessoas ou animais.",
+    "examples": [
+      {
+        "japanese": "公園に子供がいます。",
+        "reading": "こうえんにこどもがいます。",
+        "translation": "Há crianças no parque."
+      }
+    ],
+    "notes": "Usado apenas para seres vivos."
+  },
+  {
+    "id": "n5-grammar-15",
+    "type": "grammar",
+    "level": "N5",
+    "japanese": "ほうがいい",
+    "reading": "hou ga ii",
+    "translation": "É melhor fazer",
+    "explanation": "Usado para dar conselho ou recomendação.",
+    "examples": [
+      {
+        "japanese": "早く寝たほうがいいです。",
+        "reading": "はやくねたほうがいいです。",
+        "translation": "É melhor dormir cedo."
+      }
+    ],
+    "notes": "Muito usado para conselhos."
   }
 ]
