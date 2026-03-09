@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams, Navigate } from 'react-router-dom'
-import { useStudyItem } from '../hooks/useStudyData'
+import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom'
+import { useStudyItem, useStudyData } from '../hooks/useStudyData'
 import { useReviewSystem } from '../hooks/useReviewSystem'
 import { STUDY_TYPES } from '../utils/constants'
 
@@ -90,11 +90,17 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading: string
 
 export function StudyItemPage() {
   const params = useParams<{ level: string; type: string; id: string }>()
+  const location = useLocation()
   const navigate = useNavigate()
   const { id, type } = params
 
   const item = useStudyItem(id ?? '')
+  const studyData = useStudyData(params.level as any)
   const { addToReview, markMastered, resetItemProgress } = useReviewSystem()
+
+  const items = type === 'grammar' ? studyData.grammar : studyData.vocabulary
+  const currentIndex = items.findIndex((study) => study.id === id)
+  const nextItem = currentIndex >= 0 && currentIndex < items.length - 1 ? items[currentIndex + 1] : undefined
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
@@ -124,7 +130,6 @@ export function StudyItemPage() {
   const handleMarkMastered = () => {
     markMastered(item.id)
     showToast('Item marcado como dominado — não será adicionado à revisão.')
-    window.setTimeout(() => navigate(-1), 2000)
   }
 
   const handleResetItemProgress = () => {
@@ -146,11 +151,23 @@ export function StudyItemPage() {
     showToast('Item adicionado para revisão!')
   }
 
+  const shouldGoToLevel = Boolean((location.state as any)?.fromLevel)
+
   return (
     <main className="page">
       <header className="page__header">
-        <button type="button" className="link-button" onClick={() => navigate(-1)}>
-        ← Voltar
+        <button
+          type="button"
+          className="link-button"
+          onClick={() => {
+            if (shouldGoToLevel) {
+              navigate(`/level/${params.level}?scrollTo=${encodeURIComponent(id ?? '')}`)
+            } else {
+              navigate(-1)
+            }
+          }}
+        >
+          ← Voltar
         </button>
         <h1>
           {item.reading ? (
@@ -196,15 +213,44 @@ export function StudyItemPage() {
       )}
 
       <footer className="actions">
-        <button className="button" type="button" onClick={handleAddToReview}>
-          Revisar
-        </button>
-        <button className="button button--primary" type="button" onClick={handleMarkMastered}>
-          Já sei
-        </button>
-        <button className="button button--secondary" type="button" onClick={handleResetItemProgress}>
-          Apagar Progresso
-        </button>
+        <div className="actions__group">
+          <button className="button" type="button" onClick={handleAddToReview}>
+            Revisar
+          </button>
+          <button className="button button--primary" type="button" onClick={handleMarkMastered}>
+            Já sei
+          </button>
+          <button className="button button--secondary" type="button" onClick={handleResetItemProgress}>
+            Apagar Progresso
+          </button>
+        </div>
+
+        <div className="next-nav">
+          <div className="next-preview">
+            <span>Próximo:</span>
+            <span className="next-preview__text">
+              {nextItem ? (
+                <FuriganaText japanese={nextItem.japanese} reading={nextItem.reading ?? ''} />
+              ) : (
+                '—'
+              )}
+            </span>
+          </div>
+          <button
+            className="button button--primary"
+            type="button"
+            onClick={() =>
+              nextItem &&
+              navigate(`/level/${params.level}/${type}/${nextItem.id}`, {
+                replace: shouldGoToLevel,
+                state: { fromLevel: shouldGoToLevel },
+              })
+            }
+            disabled={!nextItem}
+          >
+            Próximo
+          </button>
+        </div>
       </footer>
 
       {toastMessage && (

@@ -15,8 +15,12 @@ export function StudyItemCard({ item }: Props) {
     progress.reviewQueue.some((review) => review.id === item.id)
 
   return (
-    <li className="study-item-card">
-      <Link to={`/level/${item.level}/${item.type}/${item.id}`} className="study-item-card__link">
+    <li id={`study-item-${item.id}`} className="study-item-card">
+      <Link
+        to={`/level/${item.level}/${item.type}/${item.id}`}
+        state={{ fromLevel: true }}
+        className="study-item-card__link"
+      >
         <div className="study-item-card__header">
           <label className="study-item-card__checkbox">
             <input type="checkbox" checked={isStudiedOrReviewing} disabled />

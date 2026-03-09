@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Flashcard } from '../components/Flashcard'
 import { useReviewSystem } from '../hooks/useReviewSystem'
 import { useStudyItem } from '../hooks/useStudyData'
 
 export function ReviewPage() {
-  const navigate = useNavigate()
   const { reviewQueueDue, updateReviewForQuality } = useReviewSystem()
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -43,9 +41,6 @@ export function ReviewPage() {
   return (
     <main className="page">
       <header className="page__header">
-        <button type="button" className="link-button" onClick={() => navigate(-1)}>
-          ← Voltar
-        </button>
         <h1>Revisão</h1>
         <p>Use este espaço para revisar os itens estudados.</p>
       </header>
