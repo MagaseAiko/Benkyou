@@ -13,6 +13,7 @@ export function StudyItemPage() {
   const { addToReview, markMastered, resetItemProgress } = useReviewSystem()
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
   const isValidRoute =
     !!params.level &&
@@ -43,13 +44,17 @@ export function StudyItemPage() {
   }
 
   const handleResetItemProgress = () => {
-    const confirmed = window.confirm(
-      'Tem certeza? Isso vai apagar o progresso deste item e reiniciar seu estado.',
-    )
-    if (!confirmed) return
+    setIsResetModalOpen(true)
+  }
 
+  const handleConfirmReset = () => {
     resetItemProgress(item.id)
     showToast('Progresso do item reiniciado.')
+    setIsResetModalOpen(false)
+  }
+
+  const handleCancelReset = () => {
+    setIsResetModalOpen(false)
   }
 
   const handleAddToReview = () => {
@@ -102,8 +107,8 @@ export function StudyItemPage() {
         <button className="button button--primary" type="button" onClick={handleMarkMastered}>
           Já sei
         </button>
-        <button className="button" type="button" onClick={handleResetItemProgress}>
-          Reiniciar item
+        <button className="button button--secondary" type="button" onClick={handleResetItemProgress}>
+          Apagar Progresso
         </button>
       </footer>
 
@@ -119,6 +124,27 @@ export function StudyItemPage() {
             >
               ×
             </button>
+          </div>
+        </div>
+      )}
+
+      {isResetModalOpen && (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal__backdrop" onClick={handleCancelReset} />
+          <div className="modal__content">
+            <h2>Apagar progresso</h2>
+            <p>
+              Isso vai apagar o progresso atual deste item e restaurar o estado original.
+              Deseja continuar?
+            </p>
+            <div className="modal__actions">
+              <button className="button" type="button" onClick={handleCancelReset}>
+                Cancelar
+              </button>
+              <button className="button button--primary" type="button" onClick={handleConfirmReset}>
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}

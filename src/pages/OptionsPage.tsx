@@ -5,15 +5,20 @@ import { LOCAL_STORAGE_PROGRESS_KEY } from '../utils/constants'
 export function OptionsPage() {
   const { progress, resetProgress } = useReviewSystem()
   const [importError, setImportError] = useState<string | null>(null)
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
   const handleResetClick = useCallback(() => {
-    const confirmed = window.confirm(
-      'Tem certeza que deseja resetar todo o progresso? Isso não pode ser desfeito.',
-    )
-    if (!confirmed) return
+    setIsResetModalOpen(true)
+  }, [])
 
+  const handleConfirmReset = useCallback(() => {
     resetProgress()
+    setIsResetModalOpen(false)
   }, [resetProgress])
+
+  const handleCancelReset = useCallback(() => {
+    setIsResetModalOpen(false)
+  }, [])
 
   const handleExport = useCallback(() => {
     const blob = new Blob([JSON.stringify(progress, null, 2)], {
@@ -71,8 +76,8 @@ export function OptionsPage() {
           e reiniciar seu histórico.
         </p>
         <div className="actions">
-          <button className="button button--primary" type="button" onClick={handleResetClick}>
-            Resetar progresso
+          <button className="button button--secondary" type="button" onClick={handleResetClick}>
+            Apagar progresso
           </button>
           <button className="button" type="button" onClick={handleExport}>
             Exportar progresso
@@ -89,6 +94,31 @@ export function OptionsPage() {
         </div>
         {importError && <p className="stat-note">Erro: {importError}</p>}
       </section>
+
+      {isResetModalOpen && (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal__backdrop" onClick={handleCancelReset} />
+          <div className="modal__content">
+            <h2>Apagar todo o progresso</h2>
+            <p>
+              Isso vai apagar todo o progresso do aplicativo e restaurar o estado original.
+              Deseja continuar?
+            </p>
+            <div className="modal__actions">
+              <button className="button" type="button" onClick={handleCancelReset}>
+                Cancelar
+              </button>
+              <button
+                className="button button--primary"
+                type="button"
+                onClick={handleConfirmReset}
+              >
+                Apagar progresso
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="section">
         <h2>Sobre</h2>
