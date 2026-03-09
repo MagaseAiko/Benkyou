@@ -51,6 +51,12 @@
   gap: 12px;
 }
 
+.actions__progress
+{
+  display: flex;
+  gap: 12px;
+}
+
 .actions__group {
   display: flex;
   gap: 12px;

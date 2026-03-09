@@ -75,7 +75,7 @@ export function OptionsPage() {
           Você pode resetar seu progresso de estudo e revisão. Isso irá limpar todos os itens em andamento
           e reiniciar seu histórico.
         </p>
-        <div className="actions">
+        <div className="actions__progress">
           <button className="button button--secondary" type="button" onClick={handleResetClick}>
             Apagar progresso
           </button>
