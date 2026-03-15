@@ -153,6 +153,15 @@ export function StudyItemPage() {
 
   const shouldGoToLevel = Boolean((location.state as any)?.fromLevel)
 
+  const handleNext = () => {
+    if (!nextItem) return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    navigate(`/level/${params.level}/${type}/${nextItem.id}`, {
+      replace: shouldGoToLevel,
+      state: { fromLevel: shouldGoToLevel },
+    })
+  }
+
   return (
     <main className="page">
       <header className="page__header">
@@ -239,13 +248,7 @@ export function StudyItemPage() {
           <button
             className="button button--primary"
             type="button"
-            onClick={() =>
-              nextItem &&
-              navigate(`/level/${params.level}/${type}/${nextItem.id}`, {
-                replace: shouldGoToLevel,
-                state: { fromLevel: shouldGoToLevel },
-              })
-            }
+            onClick={handleNext}
             disabled={!nextItem}
           >
             Próximo
