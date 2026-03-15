@@ -286,13 +286,13 @@
 }
 
 .completion-result.correct {
-  border-color: rgba(70, 210, 120, 0.5);
-  background: rgba(35, 75, 40, 0.56);
+  border-color: var(--success-border);
+  background: var(--success-bg);
 }
 
 .completion-result.incorrect {
-  border-color: rgba(220, 90, 90, 0.6);
-  background: rgba(70, 25, 25, 0.45);
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
 }
 
 .completion-result__status {
@@ -447,7 +447,7 @@
 .checkmark {
   position: relative;
   box-shadow: #924AD4 0px 0px 0px 2px;
-  background-color: rgba(16, 16, 16, 0.5);
+  background-color: var(--bg);
   height: 20px;
   width: 20px;
   margin-right: 10px;
