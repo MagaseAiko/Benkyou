@@ -19,6 +19,12 @@
         "translation": "Não pode usar celular na escola."
       }
     ],
+    "review_sentences": [
+      {
+        "sentence": "ここでタバコを吸って ____。",
+        "answers": ["はいけない", "ちゃいけない"]
+      }
+    ],
     "notes": "Forma informal de 〜てはいけない."
   },
   {

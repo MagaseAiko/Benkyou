@@ -8,6 +8,11 @@ export type ExampleSentence = {
   translation: string
 }
 
+export type ReviewSentence = {
+  sentence: string
+  answers: string[]
+}
+
 export type StudyItem = {
   id: string
   type: StudyType
@@ -20,6 +25,7 @@ export type StudyItem = {
   explanation: string
 
   examples: ExampleSentence[]
+  review_sentences?: ReviewSentence[]
 
   notes?: string
 }
