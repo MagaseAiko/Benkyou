@@ -10,6 +10,7 @@ export type ExampleSentence = {
 
 export type ReviewSentence = {
   sentence: string
+  translation?: string
   answers: string[]
 }
 

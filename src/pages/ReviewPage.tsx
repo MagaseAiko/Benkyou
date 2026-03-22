@@ -110,6 +110,7 @@ export function ReviewPage() {
   const [completionAnswer, setCompletionAnswer] = useState('')
   const [showCompletionResult, setShowCompletionResult] = useState(false)
   const [completionResultStatus, setCompletionResultStatus] = useState<'correct' | 'close' | 'wrong' | null>(null)
+  const [showTranslation, setShowTranslation] = useState(false)
 
   const current = reviewQueueDue[0]
   const item = useStudyItem(current?.id ?? '')
@@ -124,6 +125,7 @@ export function ReviewPage() {
     setCompletionAnswer('')
     setShowCompletionResult(false)
     setCompletionResultStatus(null)
+    setShowTranslation(false)
   }, [item?.id])
 
   useEffect(() => {
@@ -183,6 +185,11 @@ export function ReviewPage() {
               <p className="flashcard__front" style={{ whiteSpace: 'pre-wrap' }}>
                 {completionSentence.sentence}
               </p>
+              {showTranslation && completionSentence.translation && (
+                <p className="flashcard__translation" style={{ marginTop: '0.5rem' }}>
+                  {completionSentence.translation}
+                </p>
+              )}
               <label className="label" htmlFor="completion-answer">
                 Complete com a estrutura correta:
               </label>
@@ -194,14 +201,23 @@ export function ReviewPage() {
                 onChange={(event) => setCompletionAnswer(event.target.value)}
                 placeholder="Insira a resposta aqui"
               />
-              <button
-                className="button button--primary"
-                type="button"
-                onClick={handleCheckCompletion}
-                disabled={completionAnswer.trim() === ''}
-              >
-                Verificar
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                <button
+                  className="button button--primary"
+                  type="button"
+                  onClick={handleCheckCompletion}
+                  disabled={completionAnswer.trim() === ''}
+                >
+                  Verificar
+                </button>
+                <button
+                  className="button button--secondary"
+                  type="button"
+                  onClick={() => setShowTranslation((prev) => !prev)}
+                >
+                  {showTranslation ? 'Ocultar tradução' : 'Mostrar tradução'}
+                </button>
+              </div>
 
               {showCompletionResult && (
                 <div className={`completion-result ${completionResultStatus || 'wrong'}`}>
