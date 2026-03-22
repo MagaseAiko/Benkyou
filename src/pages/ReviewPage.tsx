@@ -74,8 +74,9 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading?: strin
     <span>
       {mapping.map((item, index) => {
         const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
+        const isPunctuation = /[。、！？]/.test(item.char)
         return (
-          <span key={`${item.char}-${index}`} className="furigana-wrapper">
+          <span key={`${item.char}-${index}`} className={`furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`}>
             <span className="furigana-target">{item.char}</span>
             {showTooltip && <span className="furigana-tooltip">{item.reading}</span>}
           </span>
