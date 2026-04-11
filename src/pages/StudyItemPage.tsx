@@ -94,11 +94,21 @@ export function StudyItemPage() {
 
   const item = useStudyItem(id ?? '')
   const studyData = useStudyData(params.level as any)
-  const { addToReview, markMastered, resetItemProgress } = useReviewSystem()
+  const { progress, addToReview, markMastered, resetItemProgress } = useReviewSystem()
 
   const items = type === 'grammar' ? studyData.grammar : studyData.vocabulary
   const currentIndex = items.findIndex((study) => study.id === id)
   const nextItem = currentIndex >= 0 && currentIndex < items.length - 1 ? items[currentIndex + 1] : undefined
+
+  const isInReview = useMemo(
+    () => progress.reviewQueue.some((reviewItem) => reviewItem.id === item?.id),
+    [progress.reviewQueue, item?.id],
+  )
+
+  const isMastered = useMemo(
+    () => progress.masteredItems.includes(item?.id ?? ''),
+    [progress.masteredItems, item?.id],
+  )
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
@@ -145,6 +155,16 @@ export function StudyItemPage() {
   }
 
   const handleAddToReview = () => {
+    if (isInReview) {
+      showToast('Este item já foi adicionado à revisão.')
+      return
+    }
+
+    if (isMastered) {
+      showToast('Este item já foi dominado e não pode ser enviado para revisão.')
+      return
+    }
+
     addToReview(item.id)
     showToast('Item adicionado para revisão!')
   }
