@@ -457,6 +457,10 @@
 
 .item-status {
   margin-top: 0.75rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 100%;
 }
 
 .item-status__badge {
@@ -466,6 +470,9 @@
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   font-weight: 600;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .item-status__badge--review {
@@ -808,6 +815,32 @@
     font-size: 1.7rem;
   }
 
+  .page__header-top {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .link-button {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .item-status {
+    width: auto;
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    margin-top: 0;
+    min-width: 0;
+  }
+
+  .item-status__badge {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+  }
+
   .next-nav {
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -815,6 +848,11 @@
 
   .next-preview {
     align-items: flex-start;
+  }
+
+  .next-preview__text {
+    max-width: 100%;
+    white-space: normal;
   }
 
   .actions {
@@ -898,8 +936,29 @@
     margin: 0 0.5rem;
   }
 
-  .button,
+  .page__header-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
   .link-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .item-status {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+
+  .item-status__badge {
+    margin: 0 auto;
+  }
+
+  .button {
     width: 100%;
     text-align: center;
   }
