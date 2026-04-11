@@ -44,13 +44,11 @@ export function OptionsPage() {
         try {
           const parsed = JSON.parse(reader.result as string)
           if (!parsed || typeof parsed !== 'object') throw new Error('Formato inválido')
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const data = parsed as any
           if (!data.reviewQueue || !data.masteredItems || !data.studyingItems) {
             throw new Error('Arquivo não contém dados de progresso esperados')
           }
 
-          // Use localStorage directly to avoid bypassing validation logic.
           window.localStorage.setItem(LOCAL_STORAGE_PROGRESS_KEY, JSON.stringify(data))
           window.location.reload()
         } catch (error) {

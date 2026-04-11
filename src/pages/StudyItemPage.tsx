@@ -41,12 +41,10 @@ function buildFuriganaMap(japanese: string, reading: string) {
     if (isKanji(char)) {
       const nextKanaPos = nextKanaIndex(i + 1)
       if (nextKanaPos === -1) {
-        // no more kana, take rest
         const rest = reading.slice(rIdx) || ''
         result.push({ char, reading: rest })
         rIdx = reading.length
       } else {
-        // try to find boundary in reading where next kana begins
         const nextKanaChar = japanese[nextKanaPos]
         let boundary = rIdx
         while (boundary < reading.length && reading[boundary] !== nextKanaChar) {
@@ -59,7 +57,6 @@ function buildFuriganaMap(japanese: string, reading: string) {
       continue
     }
 
-    // Fallback: just render plain
     const readChar = reading[rIdx] ?? ''
     result.push({ char, reading: readChar })
     rIdx += 1
