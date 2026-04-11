@@ -1,29 +1,26 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { Navbar } from './components/Navbar'
-import { HomePage } from './pages/HomePage'
-import { LevelPage } from './pages/LevelPage'
-import { StudyItemPage } from './pages/StudyItemPage'
-import { ReviewPage } from './pages/ReviewPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { OptionsPage } from './pages/OptionsPage'
-import { NotFoundPage } from './pages/NotFoundPage'
-
-import './App.css'
+import { useState, useEffect } from 'react'
+import { supabase } from './utils/supabase'
 
 export default function App() {
+  const [todos, setTodos] = useState([])
+
+  useEffect(() => {
+    async function getTodos() {
+      const { data: todos } = await supabase.from('todos').select()
+
+      if (todos) {
+        setTodos(todos)
+      }
+    }
+
+    getTodos()
+  }, [])
+
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/level/:level" element={<LevelPage />} />
-        <Route path="/level/:level/:type/:id" element={<StudyItemPage />} />
-        <Route path="/review" element={<ReviewPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/options" element={<OptionsPage />} />
-        <Route path="/404" element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <ul>
+      {todos.map((todo) => (
+        <li key={todo.id}>{todo.name}</li>
+      ))}
+    </ul>
   )
 }
