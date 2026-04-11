@@ -112,6 +112,7 @@ export function StudyItemPage() {
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
 
   const isValidRoute =
     !!params.level &&
@@ -170,6 +171,47 @@ export function StudyItemPage() {
   }
 
   const shouldGoToLevel = Boolean((location.state as any)?.fromLevel)
+
+  const handlePlayAudio = async (text: string) => {
+    if (isPlayingAudio) return
+
+    setIsPlayingAudio(true)
+    try {
+      const response = await fetch('https://api.deepgram.com/v1/speak?model=aura-2-fujin-ja', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Token 1f9c4cbfd649eaa2c3dbf76bac8be178bc75f965',
+        },
+        body: JSON.stringify({ text }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Erro na requisição: ${response.statusText}`)
+      }
+
+      const audioBlob = await response.blob()
+      const audioUrl = URL.createObjectURL(audioBlob)
+      const audio = new Audio(audioUrl)
+
+      audio.onended = () => {
+        setIsPlayingAudio(false)
+        URL.revokeObjectURL(audioUrl)
+      }
+
+      audio.onerror = () => {
+        setIsPlayingAudio(false)
+        showToast('Erro ao reproduzir áudio.')
+        URL.revokeObjectURL(audioUrl)
+      }
+
+      audio.play()
+    } catch (error) {
+      console.error('Erro ao reproduzir áudio:', error)
+      showToast('Erro ao reproduzir áudio. Tente novamente.')
+      setIsPlayingAudio(false)
+    }
+  }
 
   const handleNext = () => {
     if (!nextItem) return
@@ -235,6 +277,15 @@ export function StudyItemPage() {
                   ) : (
                     example.japanese
                   )}
+                  <button
+                    type="button"
+                    className="example-item__audio-btn"
+                    onClick={() => handlePlayAudio(example.japanese)}
+                    aria-label="Reproduzir áudio da frase"
+                    disabled={isPlayingAudio}
+                  >
+                    🔊
+                  </button>
                 </div>
                 <div className="example-item__translation">{example.translation}</div>
               </li>

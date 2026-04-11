@@ -483,6 +483,38 @@
   color: #1f3a7b;
 }
 
+.example-item__japanese {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.example-item__audio-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.example-item__audio-btn:hover:not(:disabled) {
+  opacity: 1;
+}
+
+.example-item__audio-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.example-item__audio-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .checkmark {
   position: relative;
   box-shadow: #924AD4 0px 0px 0px 2px;
