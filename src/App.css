@@ -62,6 +62,7 @@
 {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .actions__group {
