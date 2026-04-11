@@ -183,19 +183,30 @@ export function StudyItemPage() {
   return (
     <main className="page">
       <header className="page__header">
-        <button
-          type="button"
-          className="link-button"
-          onClick={() => {
-            if (shouldGoToLevel) {
-              navigate(`/level/${params.level}?scrollTo=${encodeURIComponent(id ?? '')}`)
-            } else {
-              navigate(-1)
-            }
-          }}
-        >
-          ← Voltar
-        </button>
+        <div className="page__header-top">
+          <button
+            type="button"
+            className="link-button"
+            onClick={() => {
+              if (shouldGoToLevel) {
+                navigate(`/level/${params.level}?scrollTo=${encodeURIComponent(id ?? '')}`)
+              } else {
+                navigate(-1)
+              }
+            }}
+          >
+            ← Voltar
+          </button>
+          <div className="item-status">
+            {isMastered ? (
+              <span className="item-status__badge item-status__badge--mastered">Dominado</span>
+            ) : isInReview ? (
+              <span className="item-status__badge item-status__badge--review">Adicionado à revisão</span>
+            ) : (
+              <span className="item-status__badge item-status__badge--pending">Ainda não adicionado à revisão</span>
+            )}
+          </div>
+        </div>
         <h1>
           {item.reading ? (
             <FuriganaText japanese={item.japanese} reading={item.reading} />
