@@ -42,6 +42,7 @@ type SupabaseGrammarRow = {
   japanese: string
   reading?: string | null
   translation: string
+  structure?: string | null
   explanation: string
   notes?: string | null
   examples?: SupabaseExample[]
@@ -60,6 +61,7 @@ const mapGrammarRowToItem = (row: SupabaseGrammarRow): StudyItem => {
     japanese: row.japanese,
     reading: row.reading ?? undefined,
     translation: row.translation,
+    structure: row.structure ?? undefined,
     explanation: row.explanation,
     notes: row.notes ?? undefined,
     examples: (row.examples ?? []).map<ExampleSentence>((example) => ({

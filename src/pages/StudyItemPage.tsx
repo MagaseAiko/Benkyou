@@ -272,7 +272,7 @@ export function StudyItemPage() {
             )}
           </div>
         </div>
-        <h1>
+        <h1 className="grammar-heading">
           {item.reading ? (
             <FuriganaText japanese={item.japanese} reading={item.reading} />
           ) : (
@@ -282,6 +282,15 @@ export function StudyItemPage() {
         {item.reading && <p className="subheading">{item.reading}</p>}
         <p className="translation">{item.translation}</p>
       </header>
+
+      {item.structure && (
+        <section className="section">
+          <h2>Estrutura</h2>
+          <p className="structure" style={{ whiteSpace: 'pre-line' }}>
+            {item.structure}
+          </p>
+        </section>
+      )}
 
       <section className="section">
         <h2>Explicação</h2>

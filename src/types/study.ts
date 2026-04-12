@@ -23,6 +23,8 @@ export type StudyItem = {
   reading?: string
   translation: string
 
+  structure?: string
+
   explanation: string
 
   examples: ExampleSentence[]

@@ -35,7 +35,7 @@
 
 .page__header h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 .page__header p {
@@ -598,6 +598,20 @@
 .example-item__audio-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.translation {
+  align-self: center;
+}
+
+.subheading {
+  align-self: center;
+}
+
+.grammar-heading {
+  align-self: center;
+  color: var(--text);
+  text-shadow: #111 1px 1px 1px;
 }
 
 .checkmark {

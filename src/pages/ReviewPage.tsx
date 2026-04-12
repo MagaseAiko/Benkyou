@@ -224,7 +224,7 @@ export function ReviewPage() {
                   Verificar
                 </button>
                 <button
-                  className="button button--secondary"
+                  className="button button--secondary button--danger"
                   type="button"
                   onClick={() => setShowTranslation((prev) => !prev)}
                 >
@@ -239,7 +239,7 @@ export function ReviewPage() {
                       ? '✅ Acertou! Excelente.'
                       : completionResultStatus === 'close'
                       ? '⚠️ Quase lá! Boa tentativa.'
-                      : '💡 Vamos revisar um pouco mais.'}
+                      : '✖ Vamos revisar um pouco mais.'}
                   </p>
                   <p className="completion-result__text"><strong>Resposta correta:</strong> {completionSentence.answers.join(' / ')}</p>
                   <p className="completion-result__text"><strong>Estrutura:</strong> <FuriganaText japanese={item.japanese} reading={item.reading} /></p>
