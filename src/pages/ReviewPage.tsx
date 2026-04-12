@@ -114,13 +114,25 @@ export function ReviewPage() {
   const [showTranslation, setShowTranslation] = useState(false)
 
   const current = reviewQueueDue[0]
-  const item = useStudyItem(current?.id ?? '')
+  const { item, isLoading: itemLoading } = useStudyItem(current?.id ?? '')
 
   const completionSentence = useMemo<ReviewSentence | null>(() => {
     if (!item?.review_sentences || item.review_sentences.length === 0) return null
     const index = Math.floor(Math.random() * item.review_sentences.length)
     return item.review_sentences[index]
   }, [item?.id])
+
+  if (current && itemLoading) {
+    return (
+      <main className="page">
+        <header className="page__header">
+          <h1>Revisão</h1>
+          <p>Use este espaço para revisar os itens estudados.</p>
+        </header>
+        <p className="empty-state">Carregando item de revisão...</p>
+      </main>
+    )
+  }
 
   useEffect(() => {
     setCompletionAnswer('')

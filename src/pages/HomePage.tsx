@@ -1,14 +1,32 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { LevelCard } from '../components/LevelCard'
 import { JLPT_LEVELS } from '../utils/constants'
 import { useReviewSystem } from '../hooks/useReviewSystem'
-import { getAllStudyItems, getTotalItemsByLevel } from '../services/studyDataService'
+import { getAllStudyItems } from '../services/studyDataService'
+import type { StudyItem } from '../types'
 
 export function HomePage() {
   const { progress } = useReviewSystem()
+  const [allItems, setAllItems] = useState<StudyItem[]>([])
+
+  useEffect(() => {
+    let isMounted = true
+
+    getAllStudyItems()
+      .then((items) => {
+        if (!isMounted) return
+        setAllItems(items)
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar itens:', error)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const itemsByLevel = useMemo(() => {
-    const allItems = getAllStudyItems()
     const studiedSet = new Set([...progress.studyingItems, ...progress.masteredItems])
     const counts: Record<string, number> = {}
 
@@ -20,7 +38,7 @@ export function HomePage() {
     })
 
     return counts
-  }, [progress.masteredItems, progress.studyingItems])
+  }, [allItems, progress.masteredItems, progress.studyingItems])
 
   return (
     <main className="page">
@@ -34,7 +52,7 @@ export function HomePage() {
           <LevelCard
             key={level}
             level={level}
-            totalItems={getTotalItemsByLevel(level)}
+            totalItems={allItems.filter((item) => item.level === level).length}
             studiedItems={itemsByLevel[level] ?? 0}
           />
         ))}

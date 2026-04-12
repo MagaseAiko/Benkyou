@@ -131,7 +131,7 @@ export function StudyItemPage() {
     !!item &&
     item.type === params.type
 
-  const isLoading = itemLoading || (dataLoading && !item)
+  const isLoading = itemLoading || dataLoading
 
   if (!params.id || !params.type || !params.level) {
     return (
@@ -385,11 +385,11 @@ export function StudyItemPage() {
               Deseja continuar?
             </p>
             <div className="modal__actions">
-              <button className="button" type="button" onClick={handleCancelReset}>
+              <button className="button button--secondary" type="button" onClick={handleCancelReset}>
                 Cancelar
               </button>
-              <button className="button button--primary" type="button" onClick={handleConfirmReset}>
-                Confirmar
+              <button className="button button--danger" type="button" onClick={handleConfirmReset}>
+                Apagar
               </button>
             </div>
           </div>

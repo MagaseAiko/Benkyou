@@ -1,12 +1,30 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useReviewSystem } from '../hooks/useReviewSystem'
-import { findStudyItemById, getAllStudyItems, getTotalItemsByLevel } from '../services/studyDataService'
+import { findStudyItemById, getAllStudyItems } from '../services/studyDataService'
 import { JLPT_LEVELS } from '../utils/constants'
+import type { StudyItem } from '../types'
 
 export function DashboardPage() {
   const { progress, reviewQueueDue } = useReviewSystem()
+  const [allStudyItems, setAllStudyItems] = useState<StudyItem[]>([])
 
-  const allStudyItems = useMemo(() => getAllStudyItems(), [])
+  useEffect(() => {
+    let isMounted = true
+
+    getAllStudyItems()
+      .then((items) => {
+        if (!isMounted) return
+        setAllStudyItems(items)
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar itens:', error)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const totalItems = allStudyItems.length
   const studiedCount = progress.studyingItems.length + progress.masteredItems.length
   const studiedPercent = totalItems ? Math.round((studiedCount / totalItems) * 100) : 0
@@ -57,7 +75,7 @@ export function DashboardPage() {
     const studiedSet = new Set([...progress.studyingItems, ...progress.masteredItems])
 
     return JLPT_LEVELS.map((level) => {
-      const total = getTotalItemsByLevel(level)
+      const total = allStudyItems.filter((item) => item.level === level).length
       const studied = allStudyItems.filter((item) => item.level === level && studiedSet.has(item.id)).length
 
       return { level, total, studied }

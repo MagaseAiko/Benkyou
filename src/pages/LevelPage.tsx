@@ -23,7 +23,7 @@ export function LevelPage() {
     return <Navigate to="/" replace />
   }
 
-  const { grammar, vocabulary } = useStudyData(level as any)
+  const { grammar, vocabulary, isLoading } = useStudyData(level as any)
 
   return (
     <main className="page">
@@ -37,7 +37,9 @@ export function LevelPage() {
 
       <section className="section">
         <h2>Gramática</h2>
-        {grammar.length === 0 ? (
+        {isLoading ? (
+          <p className="empty-state">Carregando itens de gramática...</p>
+        ) : grammar.length === 0 ? (
           <p className="empty-state">Ainda não há itens de gramática neste nível.</p>
         ) : (
           <ul className="study-item-list">
