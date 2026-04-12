@@ -332,7 +332,7 @@ export function StudyItemPage() {
           <button className="button button--primary" type="button" onClick={handleMarkMastered}>
             Já sei
           </button>
-          <button className="button button--secondary" type="button" onClick={handleResetItemProgress}>
+          <button className="button button--secondary button--danger" type="button" onClick={handleResetItemProgress}>
             Apagar Progresso
           </button>
         </div>

@@ -211,7 +211,7 @@ export function OptionsPage() {
         </p>
         <div className="actions__progress">
           <button
-            className="button button--secondary"
+            className="button button--secondary button--danger"
             type="button"
             onClick={handleResetClick}
             disabled={loading}

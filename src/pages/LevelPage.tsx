@@ -50,7 +50,10 @@ export function LevelPage() {
         )}
       </section>
 
-      <section className="section">
+      
+      {
+      /* Apagar posteriormente se realmente não for necessário */
+      /* <section className="section">
         <h2>Vocabulário</h2>
         {vocabulary.length === 0 ? (
           <p className="empty-state">Ainda não há itens de vocabulário neste nível.</p>
@@ -61,7 +64,7 @@ export function LevelPage() {
             ))}
           </ul>
         )}
-      </section>
+      </section> */}
     </main>
   )
 }

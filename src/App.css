@@ -252,6 +252,12 @@
   color: #111;
 }
 .button--secondary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #111;
+}
+
+.button--danger {
   background: var(--danger);
   border-color: var(--danger);
   color: #111;
@@ -402,12 +408,12 @@
 }
 
 .navbar__logout-button {
-  background-color: #ef4444;
+  background-color: var(--accent);
   color: white;
   border: none;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
