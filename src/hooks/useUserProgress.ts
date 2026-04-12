@@ -12,7 +12,7 @@ type ReviewQueueRow = {
   id: string
   user_id: string
   item_id: string
-  next_review: number
+  next_review: string | number
   interval: number
   ease_factor: number
 }
@@ -34,6 +34,41 @@ function clampEaseFactor(input: number) {
   return Math.min(2.5, Math.max(1.1, value))
 }
 
+// Convert milliseconds to ISO string for database storage
+function timestampToISO(ms: number): string {
+  const date = new Date(ms)
+  // Ensure we always return a valid ISO string
+  return date.toISOString()
+}
+
+// Convert ISO string or number from database to milliseconds
+function isoToTimestamp(value: string | number): number {
+  if (typeof value === 'number') {
+    // If it's already a number, assume it's milliseconds
+    return value
+  }
+  
+  if (typeof value === 'string') {
+    // Ensure proper ISO format (add Z if missing for UTC interpretation)
+    const isoString = value.includes('Z') || value.includes('+') 
+      ? value 
+      : `${value}Z`  // Assume UTC if no timezone
+    
+    const time = new Date(isoString).getTime()
+    
+    // Validate that we got a valid timestamp
+    if (isNaN(time)) {
+      console.error('Invalid timestamp conversion:', { value, isoString })
+      return Date.now()  // Fallback to current time
+    }
+    
+    return time
+  }
+  
+  // Fallback
+  return Date.now()
+}
+
 export function useUserProgress() {
   const { user } = useAuth()
   const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([])
@@ -53,6 +88,7 @@ export function useUserProgress() {
           return
         }
 
+        console.log('📥 Loading progress for user:', user.id)
         setLoading(true)
         setError(null)
 
@@ -62,6 +98,11 @@ export function useUserProgress() {
           .select('*')
           .eq('user_id', user.id)
 
+        console.log('📊 Review queue response:', {
+          count: reviewData?.length ?? 0,
+          error: reviewError?.message,
+        })
+
         if (reviewError) throw reviewError
 
         // Load study items
@@ -70,13 +111,18 @@ export function useUserProgress() {
           .select('*')
           .eq('user_id', user.id)
 
+        console.log('📝 Study items response:', {
+          count: studyData?.length ?? 0,
+          error: studyError?.message,
+        })
+
         if (studyError) throw studyError
 
         if (isMounted) {
           // Convert review queue data
           const queue: ReviewItem[] = (reviewData ?? []).map((row: ReviewQueueRow) => ({
             id: row.item_id,
-            nextReview: row.next_review,
+            nextReview: isoToTimestamp(row.next_review),
             interval: row.interval,
             easeFactor: row.ease_factor,
           }))
@@ -118,27 +164,39 @@ export function useUserProgress() {
   // Upsert review item
   const upsertReviewItem = useCallback(
     async (item: ReviewItem) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.error('❌ Cannot upsert: user.id is missing!', { user })
+        setError('Erro: Usuário não identificado. Faça login novamente.')
+        return
+      }
 
       try {
-        const { error } = await supabase.from('user_review_queue').upsert(
-          {
-            user_id: user.id,
-            item_id: item.id,
-            next_review: item.nextReview,
-            interval: item.interval,
-            ease_factor: item.easeFactor,
-          },
-          { onConflict: 'user_id,item_id' }
-        )
+        const payload = {
+          user_id: user.id,
+          item_id: item.id,
+          next_review: timestampToISO(item.nextReview),
+          interval: item.interval,
+          ease_factor: item.easeFactor,
+        }
 
-        if (error) throw error
+        console.log('📤 Upserting review item:', { item_id: item.id, interval: item.interval })
+
+        const { data, error } = await supabase.from('user_review_queue').upsert(payload, {
+          onConflict: 'user_id,item_id',
+        })
+
+        if (error) {
+          console.error('❌ Supabase upsert error:', error)
+          throw error
+        }
 
         // Update local state optimistically
         setReviewQueue((current) => {
           const nextQueue = current.filter((i) => i.id !== item.id)
           return [...nextQueue, item]
         })
+
+        console.log('✅ Review item upserted successfully')
       } catch (err) {
         console.error('Error upserting review item:', err)
         setError((err as Error).message ?? 'Erro ao atualizar item de revisão')
@@ -212,24 +270,36 @@ export function useUserProgress() {
   // Add to studying
   const addToStudying = useCallback(
     async (itemId: string) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.error('Cannot add to studying: user.id is missing!', { user })
+        setError('Erro: Usuário não identificado. Faça login novamente.')
+        return
+      }
 
       try {
-        const { error } = await supabase.from('user_study_items').upsert(
-          {
-            user_id: user.id,
-            item_id: itemId,
-            status: 'studying',
-          },
-          { onConflict: 'user_id,item_id' }
-        )
+        const payload = {
+          user_id: user.id,
+          item_id: itemId,
+          status: 'studying' as const,
+        }
 
-        if (error) throw error
+        console.log('Adding to studying:', payload)
+
+        const { error } = await supabase.from('user_study_items').upsert(payload, {
+          onConflict: 'user_id,item_id',
+        })
+
+        if (error) {
+          console.error('Supabase addToStudying error:', error)
+          throw error
+        }
 
         // Update local state optimistically
         setStudyingItems((current) =>
           Array.from(new Set([...current, itemId]))
         )
+
+        console.log('Item added to studying successfully')
       } catch (err) {
         console.error('Error adding to studying:', err)
         setError((err as Error).message ?? 'Erro ao adicionar para estudar')
