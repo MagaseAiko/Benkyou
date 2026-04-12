@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useReviewSystem } from '../hooks/useReviewSystem'
+import { useUserProgress } from '../hooks/useUserProgress'
 import { findStudyItemById, getAllStudyItems } from '../services/studyDataService'
 import { JLPT_LEVELS } from '../utils/constants'
 import type { StudyItem } from '../types'
 
 export function DashboardPage() {
-  const { progress, reviewQueueDue } = useReviewSystem()
+  const { progress, reviewQueueDue } = useUserProgress()
   const [allStudyItems, setAllStudyItems] = useState<StudyItem[]>([])
 
   useEffect(() => {

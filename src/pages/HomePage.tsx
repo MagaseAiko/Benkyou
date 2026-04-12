@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { LevelCard } from '../components/LevelCard'
 import { JLPT_LEVELS } from '../utils/constants'
-import { useReviewSystem } from '../hooks/useReviewSystem'
+import { useUserProgress } from '../hooks/useUserProgress'
 import { getAllStudyItems } from '../services/studyDataService'
 import type { StudyItem } from '../types'
 
 export function HomePage() {
-  const { progress } = useReviewSystem()
+  const { progress } = useUserProgress()
   const [allItems, setAllItems] = useState<StudyItem[]>([])
 
   useEffect(() => {

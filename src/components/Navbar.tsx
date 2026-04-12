@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 const navItems = [
   { to: '/', label: 'Início' },
@@ -8,6 +9,18 @@ const navItems = [
 ]
 
 export function Navbar() {
+  const navigate = useNavigate()
+  const { user, signOut, loading } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      navigate('/login')
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
+
   return (
     <nav className="navbar">
       <div className="navbar__brand">
@@ -26,6 +39,16 @@ export function Navbar() {
             {item.label}
           </NavLink>
         ))}
+        {user && (
+          <button
+            className="navbar__logout-button"
+            onClick={handleLogout}
+            disabled={loading}
+            title={`Logado como: ${user.email}`}
+          >
+            Sair
+          </button>
+        )}
       </div>
     </nav>
   )

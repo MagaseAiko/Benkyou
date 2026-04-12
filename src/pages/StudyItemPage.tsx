@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStudyItem, useStudyData } from '../hooks/useStudyData'
-import { useReviewSystem } from '../hooks/useReviewSystem'
+import { useUserProgress } from '../hooks/useUserProgress'
 import { STUDY_TYPES } from '../utils/constants'
 
 function isKanji(char: string) {
@@ -93,7 +93,7 @@ export function StudyItemPage() {
 
   const { item, isLoading: itemLoading } = useStudyItem(params.id ?? '')
   const { grammar, vocabulary, isLoading: dataLoading } = useStudyData((params.level as any) ?? 'N5')
-  const { progress, addToReview, markMastered, resetItemProgress } = useReviewSystem()
+  const { progress, addToReview, markMastered, resetItemProgress } = useUserProgress()
 
   const items = params.type === 'grammar' ? grammar : vocabulary
   const currentIndex = params.id ? items.findIndex((study) => study.id === params.id) : -1
@@ -157,7 +157,7 @@ export function StudyItemPage() {
     )
   }
 
-  const { id, type, level } = params
+  const { id, type } = params
 
   const handleMarkMastered = () => {
     markMastered(item.id)

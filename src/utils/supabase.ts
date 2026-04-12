@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 
 const getEnvValue = (key: 'VITE_SUPABASE_URL' | 'VITE_SUPABASE_PUBLISHABLE_KEY'): string | undefined => {
   // Try Node.js environment first (for scripts/migrations)
-  if (typeof process !== 'undefined' && process.env?.[key]) {
-    return process.env[key]
+  if (typeof (globalThis as any).process !== 'undefined' && (globalThis as any).process?.env?.[key]) {
+    return (globalThis as any).process.env[key]
   }
 
   // Try Vite environment (for browser)

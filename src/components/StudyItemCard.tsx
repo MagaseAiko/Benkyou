@@ -1,13 +1,13 @@
 import type { StudyItem } from '../types'
 import { Link } from 'react-router-dom'
-import { useReviewSystem } from '../hooks/useReviewSystem'
+import { useUserProgress } from '../hooks/useUserProgress'
 
 type Props = {
   item: StudyItem
 }
 
 export function StudyItemCard({ item }: Props) {
-  const { progress } = useReviewSystem()
+  const { progress } = useUserProgress()
 
   const isStudiedOrReviewing =
     progress.masteredItems.includes(item.id) ||

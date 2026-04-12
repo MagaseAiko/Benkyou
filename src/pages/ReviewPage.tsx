@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flashcard } from '../components/Flashcard'
-import { useReviewSystem } from '../hooks/useReviewSystem'
+import { useUserProgress } from '../hooks/useUserProgress'
 import { useStudyItem } from '../hooks/useStudyData'
 import type { ReviewSentence } from '../types/study'
 
@@ -105,7 +105,7 @@ function isCloseAnswer(answer: string, expected: string) {
 }
 
 export function ReviewPage() {
-  const { reviewQueueDue, updateReviewForQuality } = useReviewSystem()
+  const { reviewQueueDue, updateReviewForQuality } = useUserProgress()
 
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [completionAnswer, setCompletionAnswer] = useState('')
