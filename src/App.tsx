@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
@@ -9,6 +9,7 @@ import { ReviewPage } from './pages/ReviewPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OptionsPage } from './pages/OptionsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import './App.css'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route
           path="/*"
           element={

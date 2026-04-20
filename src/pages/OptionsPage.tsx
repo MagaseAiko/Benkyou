@@ -22,6 +22,8 @@ export function OptionsPage() {
 
       const { error: updateError } = await supabase.auth.updateUser({
         email: newEmail,
+      }, {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       })
 
       if (updateError) throw updateError
