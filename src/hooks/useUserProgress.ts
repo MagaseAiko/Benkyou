@@ -181,7 +181,7 @@ export function useUserProgress() {
 
         console.log('📤 Upserting review item:', { item_id: item.id, interval: item.interval })
 
-        const { data, error } = await supabase.from('user_review_queue').upsert(payload, {
+        const { error } = await supabase.from('user_review_queue').upsert(payload, {
           onConflict: 'user_id,item_id',
         })
 

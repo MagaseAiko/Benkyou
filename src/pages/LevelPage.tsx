@@ -23,7 +23,7 @@ export function LevelPage() {
     return <Navigate to="/" replace />
   }
 
-  const { grammar, vocabulary, isLoading } = useStudyData(level as any)
+  const { grammar, isLoading } = useStudyData(level as any)
 
   return (
     <main className="page">
