@@ -1,24 +1,29 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useToast } from '../hooks/useToast'
+import { Toast } from '../components/Toast'
 import './LoginPage.css'
 
 export function LoginPage() {
   const navigate = useNavigate()
   const { signIn, signUp, loading, error: authError } = useAuth()
+  const { message, toastType, showToast, closeToast } = useToast()
 
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (authError) {
+      showToast(authError, 'error')
+    }
+  }, [authError, showToast])
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-      setError(null)
-      setSuccessMessage(null)
 
       try {
         if (isLogin) {
@@ -26,26 +31,24 @@ export function LoginPage() {
           navigate('/')
         } else {
           if (password !== confirmPassword) {
-            setError('Senhas não correspondem')
+            showToast('Senhas não correspondem', 'error')
             return
           }
           await signUp(email, password)
-          setSuccessMessage('Criado com sucesso! Verifique seu email para confirmar.')
+          showToast('Criado com sucesso! Verifique seu email para confirmar.', 'success')
           setTimeout(() => setIsLogin(true), 2000)
         }
       } catch (err) {
       }
     },
-    [isLogin, email, password, confirmPassword, signIn, signUp, navigate]
+    [isLogin, email, password, confirmPassword, signIn, signUp, navigate, showToast]
   )
 
   const toggleMode = useCallback(() => {
     setIsLogin((prev) => !prev)
-    setError(null)
     setEmail('')
     setPassword('')
     setConfirmPassword('')
-    setSuccessMessage(null)
   }, [])
 
   return (
@@ -99,18 +102,6 @@ export function LoginPage() {
             </div>
           )}
 
-          {(error || authError) && (
-            <div className="form-error">
-              <p>⚠️ {error || authError}</p>
-            </div>
-          )}
-
-          {successMessage && (
-            <div className="form-success">
-              <p>✅ {successMessage}</p>
-            </div>
-          )}
-
           <button
             type="submit"
             className="button button--primary login-button"
@@ -131,6 +122,7 @@ export function LoginPage() {
           {isLogin ? 'Não tem conta? Criar' : 'Já tem conta? Entrar'}
         </button>
       </div>
+      <Toast message={message} onClose={closeToast} type={toastType} />
     </div>
   )
 }
