@@ -164,6 +164,22 @@
   }
 }
 
+/* Toast variants */
+.toast--success {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.toast--error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.toast--info {
+  background: var(--toast);
+  border-color: var(--border);
+}
+
 .modal {
   position: fixed;
   inset: 0;

@@ -34,7 +34,6 @@ export function LoginPage() {
           setTimeout(() => setIsLogin(true), 2000)
         }
       } catch (err) {
-        // Error is already set by the hook
       }
     },
     [isLogin, email, password, confirmPassword, signIn, signUp, navigate]
@@ -55,7 +54,7 @@ export function LoginPage() {
         <div className="login-header">
           <img src="/Icon.png" alt="logo" className="login-logo" />
           <h1>「Benkyou」勉今日！</h1>
-          <p className="login-subtitle">Sistema de Aprendizado Spaced Repetition</p>
+          <p className="login-subtitle">Estudo de gramática com repetição espaçada</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

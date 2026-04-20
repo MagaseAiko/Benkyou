@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStudyItem, useStudyData } from '../hooks/useStudyData'
 import { useUserProgress } from '../hooks/useUserProgress'
+import { useToast } from '../hooks/useToast'
+import { Toast } from '../components/Toast'
 import { STUDY_TYPES } from '../utils/constants'
 
 function isKanji(char: string) {
@@ -109,19 +111,9 @@ export function StudyItemPage() {
     [progress.masteredItems, item?.id],
   )
 
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { message, toastType, showToast, closeToast } = useToast()
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
-
-  const showToast = useCallback((message: string) => {
-    setToastMessage(message)
-  }, [])
-
-  useEffect(() => {
-    if (!toastMessage) return
-    const timer = window.setTimeout(() => setToastMessage(null), 2500)
-    return () => window.clearTimeout(timer)
-  }, [toastMessage])
 
   const isValidRoute =
     !!params.level &&
@@ -368,21 +360,7 @@ export function StudyItemPage() {
         </div>
       </footer>
 
-      {toastMessage && (
-        <div className="toast" role="status" aria-live="polite">
-          <div className="toast__content">
-            <span>{toastMessage}</span>
-            <button
-              type="button"
-              className="toast__close"
-              aria-label="Fechar"
-              onClick={() => setToastMessage(null)}
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      <Toast message={message} onClose={closeToast} type={toastType} />
 
       {isResetModalOpen && (
         <div className="modal" role="dialog" aria-modal="true">

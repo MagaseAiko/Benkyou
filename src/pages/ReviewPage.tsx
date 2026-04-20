@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flashcard } from '../components/Flashcard'
 import { useUserProgress } from '../hooks/useUserProgress'
 import { useStudyItem } from '../hooks/useStudyData'
+import { useToast } from '../hooks/useToast'
+import { Toast } from '../components/Toast'
 import type { ReviewSentence } from '../types/study'
 
 function isKanji(char: string) {
@@ -107,7 +109,7 @@ function isCloseAnswer(answer: string, expected: string) {
 export function ReviewPage() {
   const { reviewQueueDue, updateReviewForQuality } = useUserProgress()
 
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { message, toastType, showToast, closeToast } = useToast()
   const [completionAnswer, setCompletionAnswer] = useState('')
   const [showCompletionResult, setShowCompletionResult] = useState(false)
   const [completionResultStatus, setCompletionResultStatus] = useState<'correct' | 'close' | 'wrong' | null>(null)
@@ -140,16 +142,6 @@ export function ReviewPage() {
     setCompletionResultStatus(null)
     setShowTranslation(false)
   }, [item?.id])
-
-  useEffect(() => {
-    if (!toastMessage) return
-    const timer = window.setTimeout(() => setToastMessage(null), 2500)
-    return () => window.clearTimeout(timer)
-  }, [toastMessage])
-
-  const showToast = useCallback((message: string) => {
-    setToastMessage(message)
-  }, [])
 
   const handleQuality = useCallback(
     (quality: 'forgot' | 'continue' | 'remembered') => {
@@ -286,21 +278,7 @@ export function ReviewPage() {
         </section>
       )}
 
-      {toastMessage && (
-        <div className="toast" role="status" aria-live="polite">
-          <div className="toast__content">
-            <span>{toastMessage}</span>
-            <button
-              type="button"
-              className="toast__close"
-              aria-label="Fechar"
-              onClick={() => setToastMessage(null)}
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      <Toast message={message} onClose={closeToast} type={toastType} />
     </main>
   )
 }

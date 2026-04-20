@@ -1,25 +1,24 @@
 import { useCallback, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProgress } from '../hooks/useUserProgress'
+import { useToast } from '../hooks/useToast'
+import { Toast } from '../components/Toast'
 import { supabase } from '../utils/supabase'
 
 export function OptionsPage() {
   const { user } = useAuth()
   const { resetProgress } = useUserProgress()
+  const { message, toastType, showToast, closeToast } = useToast()
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const [accountSection, setAccountSection] = useState<'email' | 'password' | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
 
   // Email change
   const [newEmail, setNewEmail] = useState('')
   const handleChangeEmail = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      setSuccess(null)
 
       const { error: updateError } = await supabase.auth.updateUser({
         email: newEmail,
@@ -27,24 +26,31 @@ export function OptionsPage() {
 
       if (updateError) throw updateError
 
-      setSuccess('Email foi atualizado. Verifique seu novo email para confirmar.')
+      showToast('Email foi atualizado com sucesso.', 'success')
       setNewEmail('')
       setAccountSection(null)
     } catch (err) {
-      setError((err as Error).message ?? 'Erro ao alterar email')
+      showToast((err as Error).message ?? 'Erro ao alterar email', 'error')
     } finally {
       setLoading(false)
     }
-  }, [newEmail])
+  }, [newEmail, showToast])
 
   // Password change
+  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const handleChangePassword = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      setSuccess(null)
+
+      if (!user?.email) {
+        throw new Error('Usuário não está autenticado')
+      }
+
+      if (!currentPassword) {
+        throw new Error('Informe a senha atual para continuar')
+      }
 
       if (newPassword !== confirmPassword) {
         throw new Error('Senhas não correspondem')
@@ -54,22 +60,32 @@ export function OptionsPage() {
         throw new Error('Senha deve ter no mínimo 6 caracteres')
       }
 
+      const { error: reauthError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      })
+
+      if (reauthError) {
+        throw new Error('Senha atual incorreta')
+      }
+
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       })
 
       if (updateError) throw updateError
 
-      setSuccess('Senha foi alterada com sucesso.')
+      showToast('Senha foi alterada com sucesso.', 'success')
+      setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
       setAccountSection(null)
     } catch (err) {
-      setError((err as Error).message ?? 'Erro ao alterar senha')
+      showToast((err as Error).message ?? 'Erro ao alterar senha', 'error')
     } finally {
       setLoading(false)
     }
-  }, [newPassword, confirmPassword])
+  }, [currentPassword, newPassword, confirmPassword, user?.email, showToast])
 
   const handleResetClick = useCallback(() => {
     setIsResetModalOpen(true)
@@ -78,18 +94,16 @@ export function OptionsPage() {
   const handleConfirmReset = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
-      setSuccess(null)
 
       await resetProgress()
-      setSuccess('Progresso foi resetado com sucesso.')
+      showToast('Progresso foi resetado com sucesso.', 'success')
       setIsResetModalOpen(false)
     } catch (err) {
-      setError((err as Error).message ?? 'Erro ao resetar progresso')
+      showToast((err as Error).message ?? 'Erro ao resetar progresso', 'error')
     } finally {
       setLoading(false)
     }
-  }, [resetProgress])
+  }, [resetProgress, showToast])
 
   const handleCancelReset = useCallback(() => {
     setIsResetModalOpen(false)
@@ -161,6 +175,18 @@ export function OptionsPage() {
         {accountSection === 'password' && (
           <div className="account-form">
             <div className="form-group">
+              <label htmlFor="current-password">Senha Atual</label>
+              <input
+                id="current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="••••••••"
+                disabled={loading}
+              />
+              <small>Precisamos verificar sua senha atual antes de atualizar para uma nova.</small>
+            </div>
+            <div className="form-group">
               <label htmlFor="new-password">Nova Senha</label>
               <input
                 id="new-password"
@@ -193,7 +219,9 @@ export function OptionsPage() {
               <button
                 className="button button--primary"
                 onClick={handleChangePassword}
-                disabled={loading || !newPassword || !confirmPassword}
+                disabled={
+                  loading || !currentPassword || !newPassword || !confirmPassword
+                }
               >
                 {loading ? 'Atualizando...' : 'Atualizar Senha'}
               </button>
@@ -220,19 +248,6 @@ export function OptionsPage() {
           </button>
         </div>
       </section>
-
-      {/* Notifications */}
-      {error && (
-        <section className="section" style={{ backgroundColor: '#fee', borderLeft: '4px solid #c33', padding: '1rem' }}>
-          <p style={{ color: '#c33', margin: 0 }}>⚠️ {error}</p>
-        </section>
-      )}
-
-      {success && (
-        <section className="section" style={{ backgroundColor: '#efe', borderLeft: '4px solid #3c3', padding: '1rem' }}>
-          <p style={{ color: '#3c3', margin: 0 }}>✅ {success}</p>
-        </section>
-      )}
 
       {/* About Section */}
       <section className="section">
@@ -269,6 +284,8 @@ export function OptionsPage() {
           </div>
         </div>
       )}
+
+      <Toast message={message} onClose={closeToast} type={toastType} />
     </main>
   )
 }
