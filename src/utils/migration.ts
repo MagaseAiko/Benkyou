@@ -9,6 +9,10 @@ const data = [
     "reading": "chai ikenai / ja ikenai",
     "translation": "Não pode / É proibido",
     "explanation": "Usado para dizer que algo é proibido ou não permitido. A forma ちゃ é contração de ては, então a forma completa é 〜てはいけない.",
+    "base_form": "いけない",
+    "match_regex": "ちゃいけない",
+    "tokens": ["ちゃ", "じゃ", "いけない"],
+    "variations": ["ちゃいけない", "じゃいけない", "ちゃいけません", "じゃいけません", "ちゃいけなかった", "じゃいけなかった"],
     "examples": [
       {
         "japanese": "ここでタバコを吸っちゃいけません。",
@@ -150,10 +154,10 @@ const data = [
 
 async function seed() {
   for (const grammar of data) {
-    // 1. Inserir grammar
+    // 1. Atualizar grammar (upsert)
     const { error: grammarError } = await supabase
       .from("grammar")
-      .insert({
+      .upsert({
         id: grammar.id,
         type: grammar.type,
         level: grammar.level,
@@ -162,14 +166,19 @@ async function seed() {
         translation: grammar.translation,
         explanation: grammar.explanation,
         notes: grammar.notes,
-      });
+        base_form: grammar.base_form,
+        match_regex: grammar.match_regex,
+        tokens: grammar.tokens,
+        variations: grammar.variations,
+      }, { onConflict: 'id' });
 
     if (grammarError) {
       console.error("Erro grammar:", grammarError);
       continue;
     }
 
-    // 2. Inserir examples
+    // 2. Limpar examples existentes e inserir novos
+    await supabase.from("examples").delete().eq("grammar_id", grammar.id);
     for (const example of grammar.examples) {
       await supabase.from("examples").insert({
         grammar_id: grammar.id,
@@ -179,7 +188,8 @@ async function seed() {
       });
     }
 
-    // 3. Inserir review_sentences + answers
+    // 3. Limpar review_sentences existentes e inserir novos
+    await supabase.from("review_sentences").delete().eq("grammar_id", grammar.id);
     for (const review of grammar.review_sentences) {
       const { data: reviewData, error: reviewError } = await supabase
         .from("review_sentences")
@@ -208,5 +218,7 @@ async function seed() {
 
   console.log("Seed finalizado 🚀");
 }
+
+export { seed };
 
 seed();

@@ -584,6 +584,12 @@
   color: #1f3a7b;
 }
 
+.grammar-highlight
+{
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .example-item__japanese {
   display: flex;
   align-items: center;
@@ -626,7 +632,7 @@
 
 .grammar-heading {
   align-self: center;
-  color: var(--text);
+  color: var(--accent);
   text-shadow: #111 1px 1px 1px;
 }
 

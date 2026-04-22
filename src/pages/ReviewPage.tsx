@@ -4,6 +4,7 @@ import { useUserProgress } from '../hooks/useUserProgress'
 import { useStudyItem } from '../hooks/useStudyData'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
+import { HighlightedText } from './StudyItemPage'
 import type { ReviewSentence } from '../types/study'
 
 function isKanji(char: string) {
@@ -242,7 +243,13 @@ export function ReviewPage() {
                       <ul>
                         {item.examples.map((example) => (
                           <li key={example.japanese}>
-                            <div><FuriganaText japanese={example.japanese} reading={example.reading} /></div>
+                            <div>
+                              <HighlightedText
+                                japanese={example.japanese}
+                                reading={example.reading}
+                                grammar={item.type === 'grammar' && 'match_regex' in item ? item : undefined}
+                              />
+                            </div>
                             <div>{example.translation}</div>
                           </li>
                         ))}

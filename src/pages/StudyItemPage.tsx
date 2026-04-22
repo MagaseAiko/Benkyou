@@ -5,6 +5,8 @@ import { useUserProgress } from '../hooks/useUserProgress'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
 import { STUDY_TYPES } from '../utils/constants'
+import { highlightGrammar } from '../utils/highlight'
+import type { GrammarItem } from '../types'
 
 function isKanji(char: string) {
   const code = char.codePointAt(0) ?? 0
@@ -87,6 +89,30 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading: string
     </span>
   )
 }
+
+function HighlightedText({ japanese, reading, grammar }: { japanese: string; reading?: string; grammar?: GrammarItem }) {
+  const highlightedText = useMemo(() => {
+    if (grammar) {
+      return highlightGrammar(japanese, grammar)
+    }
+    return japanese
+  }, [japanese, grammar])
+
+  if (reading) {
+    // If we have reading and highlighting was applied, show highlighted text
+    if (grammar && highlightedText !== japanese) {
+      return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />
+    } else {
+      // No highlighting or no grammar, apply normal furigana
+      return <FuriganaText japanese={japanese} reading={reading} />
+    }
+  }
+
+  // No reading, return highlighted HTML
+  return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />
+}
+
+export { HighlightedText }
 
 export function StudyItemPage() {
   const params = useParams<{ level: string; type: string; id: string }>()
@@ -296,11 +322,11 @@ export function StudyItemPage() {
             {item.examples.map((example) => (
               <li key={example.japanese} className="example-item">
                 <div className="example-item__japanese">
-                  {example.reading ? (
-                    <FuriganaText japanese={example.japanese} reading={example.reading} />
-                  ) : (
-                    example.japanese
-                  )}
+                  <HighlightedText
+                    japanese={example.japanese}
+                    reading={example.reading}
+                    grammar={item.type === 'grammar' && 'match_regex' in item ? item : undefined}
+                  />
                   <button
                     type="button"
                     className="example-item__audio-btn"

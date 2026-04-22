@@ -1,4 +1,4 @@
-import type { JLPTLevel, StudyItem, StudyType, ExampleSentence, ReviewSentence } from '../types'
+import type { JLPTLevel, StudyItem, StudyType, ExampleSentence, ReviewSentence, GrammarItem } from '../types'
 import { supabase } from '../utils/supabase'
 
 // const vocabularyData: Record<JLPTLevel, StudyItem[]> = {
@@ -49,13 +49,17 @@ type SupabaseGrammarRow = {
   notes?: string | null
   examples?: SupabaseExample[]
   review_sentences?: SupabaseReviewSentence[]
+  base_form: string
+  match_regex: string
+  tokens: string[]
+  variations: string[]
 }
 
-let grammarCache: StudyItem[] | null = null
+let grammarCache: GrammarItem[] | null = null
 
 const normalizeLevel = (value: string): JLPTLevel => (isValidLevel(value) ? value : 'N5')
 
-const mapGrammarRowToItem = (row: SupabaseGrammarRow): StudyItem => {
+const mapGrammarRowToItem = (row: SupabaseGrammarRow): GrammarItem => {
   return {
     id: row.id,
     type: 'grammar',
@@ -76,10 +80,14 @@ const mapGrammarRowToItem = (row: SupabaseGrammarRow): StudyItem => {
       translation: sentence.translation ?? undefined,
       answers: (sentence.review_answers ?? []).map((answer) => answer.answer),
     })),
+    base_form: row.base_form,
+    match_regex: row.match_regex,
+    tokens: row.tokens,
+    variations: row.variations,
   }
 }
 
-export async function getAllGrammar(): Promise<StudyItem[]> {
+export async function getAllGrammar(): Promise<GrammarItem[]> {
   if (grammarCache) {
     return grammarCache
   }
@@ -98,7 +106,7 @@ export async function getAllGrammar(): Promise<StudyItem[]> {
   return grammarCache
 }
 
-export async function getGrammarById(id: string): Promise<StudyItem | null> {
+export async function getGrammarById(id: string): Promise<GrammarItem | null> {
   if (grammarCache) {
     const cachedItem = grammarCache.find((item) => item.id === id)
     if (cachedItem) {

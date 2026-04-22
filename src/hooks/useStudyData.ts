@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { JLPTLevel, StudyItem } from '../types'
+import type { JLPTLevel, StudyItem, GrammarItem } from '../types'
 import {
   getAllGrammar,
   getGrammarById,
@@ -8,7 +8,7 @@ import {
 } from '../services/studyDataService'
 
 export function useStudyData(level: JLPTLevel) {
-  const [grammar, setGrammar] = useState<StudyItem[]>([])
+  const [grammar, setGrammar] = useState<GrammarItem[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
