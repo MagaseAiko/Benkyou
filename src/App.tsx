@@ -8,8 +8,8 @@ import { StudyItemPage } from './pages/StudyItemPage'
 import { ReviewPage } from './pages/ReviewPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OptionsPage } from './pages/OptionsPage'
+import { AboutPage } from './pages/AboutPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import './App.css'
 
 export default function App() {
@@ -17,7 +17,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route
           path="/*"
           element={
@@ -31,6 +30,7 @@ export default function App() {
                     <Route path="/level/:level/:type/:id" element={<StudyItemPage />} />
                     <Route path="/review" element={<ReviewPage />} />
                     <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/about" element={<AboutPage />} />
                     <Route path="/options" element={<OptionsPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>

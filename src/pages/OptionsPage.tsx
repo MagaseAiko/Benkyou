@@ -22,8 +22,6 @@ export function OptionsPage() {
 
       const { error: updateError } = await supabase.auth.updateUser({
         email: newEmail,
-      }, {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
       })
 
       if (updateError) throw updateError
@@ -186,7 +184,6 @@ export function OptionsPage() {
                 placeholder="••••••••"
                 disabled={loading}
               />
-              <small>Precisamos verificar sua senha atual antes de atualizar para uma nova.</small>
             </div>
             <div className="form-group">
               <label htmlFor="new-password">Nova Senha</label>
