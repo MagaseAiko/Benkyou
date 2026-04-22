@@ -248,15 +248,6 @@ export function OptionsPage() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="section">
-        <h2>Sobre</h2>
-        <p>
-          Seu progresso está protegido no servidor e sincronizado com sua conta Supabase.
-          Você pode acessar seus dados em qualquer dispositivo ao fazer login.
-        </p>
-      </section>
-
       {/* Reset Modal */}
       {isResetModalOpen && (
         <div className="modal" role="dialog" aria-modal="true">

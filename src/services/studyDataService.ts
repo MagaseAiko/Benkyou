@@ -1,18 +1,20 @@
 import type { JLPTLevel, StudyItem, StudyType, ExampleSentence, ReviewSentence } from '../types'
 import { supabase } from '../utils/supabase'
 
-import N5Vocabulary from '../data/N5/vocabulary.json'
-import N4Vocabulary from '../data/N4/vocabulary.json'
-import N3Vocabulary from '../data/N3/vocabulary.json'
-import N2Vocabulary from '../data/N2/vocabulary.json'
-import N1Vocabulary from '../data/N1/vocabulary.json'
+// const vocabularyData: Record<JLPTLevel, StudyItem[]> = {
+//   N5: N5Vocabulary as unknown as StudyItem[],
+//   N4: N4Vocabulary as unknown as StudyItem[],
+//   N3: N3Vocabulary as unknown as StudyItem[],
+//   N2: N2Vocabulary as unknown as StudyItem[],
+//   N1: N1Vocabulary as unknown as StudyItem[],
+// }
 
 const vocabularyData: Record<JLPTLevel, StudyItem[]> = {
-  N5: N5Vocabulary as unknown as StudyItem[],
-  N4: N4Vocabulary as unknown as StudyItem[],
-  N3: N3Vocabulary as unknown as StudyItem[],
-  N2: N2Vocabulary as unknown as StudyItem[],
-  N1: N1Vocabulary as unknown as StudyItem[],
+  N5: [],
+  N4: [],
+  N3: [],
+  N2: [],
+  N1: [],
 }
 
 const JLPT_LEVELS: JLPTLevel[] = ['N5', 'N4', 'N3', 'N2', 'N1']
