@@ -18,6 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding-top: 10px;
 }
 
 .page__header {
@@ -385,9 +386,8 @@
   position: sticky;
   top: 0;
   width: 100%;
-  background: rgba(15, 23, 42, 0.96);
+  background: transparent;
   border-bottom: 1px solid var(--border-soft);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(16px);
   z-index: 1001;
 }
@@ -426,11 +426,11 @@
 }
 
 .navbar__title {
-  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  background: var(--text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 
 .navbar__desktop {
@@ -450,7 +450,7 @@
 .navbar__link {
   color: var(--text);
   text-decoration: none;
-  padding: 0.7rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-weight: 500;
   font-size: 0.95rem;
@@ -460,12 +460,12 @@
 
 .navbar__link:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--accent);
+  color: var(--text);
 }
 
 .navbar__link--active {
-  background: rgba(100, 113, 255, 0.18);
-  color: var(--accent);
+  background: var(--accent);
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -480,7 +480,7 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  padding: 0.55rem 0.95rem;
+  padding: 0.5rem 0.95rem;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.08);
@@ -514,6 +514,7 @@
 }
 
 .navbar__logout-button:hover:not(:disabled) {
+  background: var(--danger);
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 }
@@ -561,7 +562,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: rgba(15, 23, 42, 0.98);
+  background: var(--bg);
   border-bottom: 1px solid var(--border-soft);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
   transform: translateY(-10px);
@@ -602,7 +603,7 @@
 
 .navbar__mobile-link--active {
   background: rgba(100, 113, 255, 0.18);
-  color: var(--accent);
+  color: var(--text);
   font-weight: 600;
   border-color: rgba(100, 113, 255, 0.28);
 }
@@ -642,6 +643,7 @@
 }
 
 .navbar__mobile-logout:hover:not(:disabled) {
+  background: var(--danger);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -686,7 +688,7 @@
   }
 
   .navbar__title {
-    font-size: 0.95rem;
+    font-size: 1.4rem;
   }
 
   .navbar__mobile-links {
