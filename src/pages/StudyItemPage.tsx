@@ -90,25 +90,97 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading: string
   )
 }
 
-function HighlightedText({ japanese, reading, grammar }: { japanese: string; reading?: string; grammar?: GrammarItem }) {
-  const highlightedText = useMemo(() => {
-    if (grammar) {
-      return highlightGrammar(japanese, grammar)
+// Generate HTML string for furigana (used for highlighting)
+function generateFuriganaHTML(japanese: string, reading: string): string {
+  const mapping = buildFuriganaMap(japanese, reading)
+  return mapping.map((item) => {
+    const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
+    const isPunctuation = /[。、！？]/.test(item.char)
+    const classes = `furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`
+    let html = `<span class="${classes}">`
+    html += `<span class="furigana-target">${item.char}</span>`
+    if (showTooltip) {
+      html += `<span class="furigana-tooltip">${item.reading}</span>`
     }
-    return japanese
-  }, [japanese, grammar])
+    html += '</span>'
+    return html
+  }).join('')
+}
 
-  if (reading) {
-    // If we have reading and highlighting was applied, show highlighted text
-    if (grammar && highlightedText !== japanese) {
-      return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />
-    } else {
-      // No highlighting or no grammar, apply normal furigana
-      return <FuriganaText japanese={japanese} reading={reading} />
+// Apply furigana to text that may contain highlight spans
+function applyFuriganaToHighlightedText(highlightedText: string, reading: string): string {
+  // If no highlights, just generate normal furigana HTML
+  if (!highlightedText.includes('<span class="grammar-highlight">')) {
+    return generateFuriganaHTML(highlightedText, reading)
+  }
+
+  // Extract the original Japanese text from the highlighted version
+  const originalText = highlightedText
+    .replace(/<span class="grammar-highlight">/g, '')
+    .replace(/<\/span>/g, '')
+
+  // Build the furigana mapping for the original text
+  const mapping = buildFuriganaMap(originalText, reading)
+
+  // Now reconstruct the HTML with furigana applied, preserving highlights
+  let result = ''
+  let mappingIndex = 0
+
+  // Split by tags and text
+  const parts = highlightedText.split(/(<span class="grammar-highlight">|<\/span>)/)
+
+  for (const part of parts) {
+    if (part === '<span class="grammar-highlight">') {
+      result += part
+    } else if (part === '</span>') {
+      result += part
+    } else if (part) {
+      // Apply furigana to this text segment using the mapping
+      for (let i = 0; i < part.length; i++) {
+        if (mappingIndex < mapping.length) {
+          const item = mapping[mappingIndex]
+          const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
+          const isPunctuation = /[。、！？]/.test(item.char)
+          const classes = `furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`
+
+          result += `<span class="${classes}">`
+          result += `<span class="furigana-target">${item.char}</span>`
+          if (showTooltip) {
+            result += `<span class="furigana-tooltip">${item.reading}</span>`
+          }
+          result += '</span>'
+
+          mappingIndex++
+        }
+      }
     }
   }
 
-  // No reading, return highlighted HTML
+  return result
+}
+
+function HighlightedText({ japanese, reading, grammar }: { japanese: string; reading?: string; grammar?: GrammarItem }) {
+  const highlightedText = useMemo(() => {
+    if (!grammar) {
+      // No grammar, just return plain text or furigana HTML
+      return reading ? generateFuriganaHTML(japanese, reading) : japanese
+    }
+
+    // Apply highlight to plain text first
+    const highlightedPlain = highlightGrammar(japanese, grammar)
+
+    if (reading) {
+      // If we have reading, apply furigana to the highlighted text
+      // But we need to be careful - the highlighted text contains HTML tags
+      // So we need to parse and apply furigana while preserving highlights
+      return applyFuriganaToHighlightedText(highlightedPlain, reading)
+    } else {
+      // No reading, return highlighted plain text
+      return highlightedPlain
+    }
+  }, [japanese, reading, grammar])
+
+  // Always return HTML since we might have furigana markup or highlights
   return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />
 }
 
