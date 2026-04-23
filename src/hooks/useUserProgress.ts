@@ -1,10 +1,81 @@
 import { useCallback, useMemo, useEffect, useState } from 'react'
-import type { ReviewItem, UserProgress } from '../types'
+import type { ReviewItem, UserProgress, UserProfile } from '../types'
 import { supabase } from '../utils/supabase'
 import { useAuth } from './useAuth'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const MAX_INTERVAL_DAYS = 365 * 5
+
+function getUTCDateString(date: Date = new Date()) {
+  return date.toISOString().slice(0, 10)
+}
+
+function getYesterdayUTCDateString() {
+  const yesterday = new Date(Date.now() - MS_PER_DAY)
+  return getUTCDateString(yesterday)
+}
+
+async function trackDailyActivityForUser(userId: string) {
+  const today = getUTCDateString()
+  const yesterday = getYesterdayUTCDateString()
+
+  const { error: activityError } = await supabase
+    .from('user_daily_activity')
+    .upsert({
+      user_id: userId,
+      activity_date: today,
+    })
+
+  if (activityError) {
+    throw activityError
+  }
+
+  const { data: profileRow, error: profileError } = await supabase
+    .from('profiles')
+    .select('current_streak,longest_streak,last_activity_date')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profileError) {
+    throw profileError
+  }
+
+  const lastActivityDate = profileRow?.last_activity_date ?? null
+  const currentStreak =
+    lastActivityDate === today
+      ? profileRow?.current_streak ?? 0
+      : lastActivityDate === yesterday
+      ? (profileRow?.current_streak ?? 0) + 1
+      : 1
+  const longestStreak = Math.max(profileRow?.longest_streak ?? 0, currentStreak)
+
+  if (lastActivityDate === today && profileRow) {
+    return {
+      currentStreak: profileRow.current_streak ?? 0,
+      longestStreak: profileRow.longest_streak ?? 0,
+      lastActivityDate: profileRow.last_activity_date,
+    }
+  }
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .upsert({
+      id: userId,
+      current_streak: currentStreak,
+      longest_streak: longestStreak,
+      last_activity_date: today,
+    })
+
+  if (updateError) {
+    throw updateError
+  }
+
+  return {
+    currentStreak,
+    longestStreak,
+    lastActivityDate: today,
+  } as UserProfile
+}
 
 export type ReviewQuality = 'forgot' | 'continue' | 'remembered'
 
@@ -74,6 +145,11 @@ export function useUserProgress() {
   const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([])
   const [masteredItems, setMasteredItems] = useState<string[]>([])
   const [studyingItems, setStudyingItems] = useState<string[]>([])
+  const [profile, setProfile] = useState<UserProfile>({
+    currentStreak: 0,
+    longestStreak: 0,
+    lastActivityDate: null,
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -118,6 +194,14 @@ export function useUserProgress() {
 
         if (studyError) throw studyError
 
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('current_streak,longest_streak,last_activity_date')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (profileError) throw profileError
+
         if (isMounted) {
           // Convert review queue data
           const queue: ReviewItem[] = (reviewData ?? []).map((row: ReviewQueueRow) => ({
@@ -141,6 +225,12 @@ export function useUserProgress() {
               .filter((row) => row.status === 'studying')
               .map((row) => row.item_id)
           )
+
+          setProfile({
+            currentStreak: profileData?.current_streak ?? 0,
+            longestStreak: profileData?.longest_streak ?? 0,
+            lastActivityDate: profileData?.last_activity_date ?? null,
+          })
         }
       } catch (err) {
         console.error('Error loading progress:', err)
@@ -259,6 +349,9 @@ export function useUserProgress() {
         setStudyingItems((current) =>
           current.filter((id) => id !== itemId)
         )
+
+        const updatedProfile = await trackDailyActivityForUser(user.id)
+        setProfile(updatedProfile)
       } catch (err) {
         console.error('Error marking mastered:', err)
         setError((err as Error).message ?? 'Erro ao marcar como dominado')
@@ -369,6 +462,9 @@ export function useUserProgress() {
             easeFactor: nextEase,
           })
           await addToStudying(itemId)
+
+          const updatedProfile = await trackDailyActivityForUser(user.id)
+          setProfile(updatedProfile)
         }
       } catch (err) {
         console.error('Error updating review for quality:', err)
@@ -473,6 +569,7 @@ export function useUserProgress() {
 
   return {
     progress,
+    profile,
     loading,
     error,
     reviewQueueDue,

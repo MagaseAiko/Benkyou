@@ -13,6 +13,12 @@ export type UserProgress = {
   studyingItems: string[]
 }
 
+export type UserProfile = {
+  currentStreak: number
+  longestStreak: number
+  lastActivityDate: string | null
+}
+
 export type StudyState = {
   items: StudyItem[]
   progress: UserProgress

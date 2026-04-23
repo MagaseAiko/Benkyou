@@ -14,6 +14,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [username, setUsername] = useState('')
 
   useEffect(() => {
     if (authError) {
@@ -34,14 +35,22 @@ export function LoginPage() {
             showToast('Senhas não correspondem', 'error')
             return
           }
-          await signUp(email, password)
+          if (!username.trim()) {
+            showToast('Nome de usuário é obrigatório', 'error')
+            return
+          }
+          if (username.length < 3) {
+            showToast('Nome de usuário deve ter pelo menos 3 caracteres', 'error')
+            return
+          }
+          await signUp(email, password, username.trim())
           showToast('Criado com sucesso! Verifique seu email para confirmar.', 'success')
           setTimeout(() => setIsLogin(true), 2000)
         }
       } catch (err) {
       }
     },
-    [isLogin, email, password, confirmPassword, signIn, signUp, navigate, showToast]
+    [isLogin, email, password, confirmPassword, username, signIn, signUp, navigate, showToast]
   )
 
   const toggleMode = useCallback(() => {
@@ -49,6 +58,7 @@ export function LoginPage() {
     setEmail('')
     setPassword('')
     setConfirmPassword('')
+    setUsername('')
   }, [])
 
   return (
@@ -73,6 +83,23 @@ export function LoginPage() {
               disabled={loading}
             />
           </div>
+
+          {!isLogin && (
+            <div className="form-group">
+              <label htmlFor="username">Nome de Usuário</label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="seu_nome_usuario"
+                required
+                disabled={loading}
+                minLength={3}
+                maxLength={30}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="password">Senha</label>

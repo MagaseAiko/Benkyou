@@ -6,7 +6,7 @@ type AuthContextType = {
   user: User | null
   loading: boolean
   error: string | null
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, username?: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
 }
@@ -67,12 +67,12 @@ export function useAuth(): AuthContextType {
     }
   }, [])
 
-  const signUp = useCallback(async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string, username?: string) => {
     try {
       setError(null)
       setLoading(true)
 
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -82,6 +82,21 @@ export function useAuth(): AuthContextType {
 
       if (signUpError) {
         throw signUpError
+      }
+
+      // Create profile if username is provided and user was created
+      if (username && data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            username: username.trim(),
+          })
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError)
+          // Don't throw here as the user account was created successfully
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao criar conta'
