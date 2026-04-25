@@ -4,6 +4,17 @@ import { useUserProgress } from '../hooks/useUserProgress'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
 import { supabase } from '../utils/supabase'
+import {
+  User,
+  Shield,
+  Mail,
+  Key,
+  Trash2,
+  AlertTriangle,
+  Check,
+  AtSign
+} from 'lucide-react'
+import './OptionsPage.css'
 
 export function OptionsPage() {
   const { user } = useAuth()
@@ -40,6 +51,7 @@ export function OptionsPage() {
 
     fetchUsername()
   }, [user?.id])
+
   const [newEmail, setNewEmail] = useState('')
   const handleChangeEmail = useCallback(async () => {
     try {
@@ -179,207 +191,244 @@ export function OptionsPage() {
   }, [])
 
   return (
-    <main className="page">
-      <header className="page__header">
+    <main className="options-page">
+      <header className="options-header">
         <h1>Opções</h1>
-        <p>Configurações gerais do aplicativo.</p>
+        <p>Configurações gerais do aplicativo e da sua conta.</p>
       </header>
 
-      {/* Account Section */}
-      <section className="section">
-        <h2>Conta do Usuário</h2>
-        <p>Email: <strong>{user?.email}</strong></p>
-        <p>Nome de usuário: <strong>{username || 'Não definido'}</strong></p>
+      <div className="options-grid">
+        {/* Account Section */}
+        <section className="options-card">
+          <div className="options-card-header">
+            <div className="options-card-icon">
+              <User size={24} />
+            </div>
+            <div>
+              <h2 className="options-card-title">Conta do Usuário</h2>
+              <p className="options-card-desc">Gerencie suas informações pessoais e de acesso</p>
+            </div>
+          </div>
 
-        {accountSection === null && (
-          <div className="actions__progress">
+          <div className="options-info-list">
+            <div className="options-info-item">
+              <span className="options-info-label">
+                <Mail size={16} /> Email
+              </span>
+              <span className="options-info-value">{user?.email}</span>
+            </div>
+            <div className="options-info-item">
+              <span className="options-info-label">
+                <AtSign size={16} /> Nome de usuário
+              </span>
+              <span className="options-info-value">{username || 'Não definido'}</span>
+            </div>
+          </div>
+
+          {accountSection === null && (
+            <div className="options-action-grid">
+              <button
+                className="options-btn"
+                onClick={() => setAccountSection('email')}
+                disabled={loading}
+              >
+                <Mail size={18} /> Alterar Email
+              </button>
+              <button
+                className="options-btn"
+                onClick={() => setAccountSection('username')}
+                disabled={loading}
+              >
+                <AtSign size={18} /> Alterar Nome de Usuário
+              </button>
+              <button
+                className="options-btn"
+                onClick={() => setAccountSection('password')}
+                disabled={loading}
+              >
+                <Key size={18} /> Alterar Senha
+              </button>
+            </div>
+          )}
+
+          {accountSection === 'email' && (
+            <div className="options-form-wrapper">
+              <div className="form-group">
+                <label htmlFor="new-email">Novo Email</label>
+                <input
+                  id="new-email"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="novo@email.com"
+                  disabled={loading}
+                />
+              </div>
+              <div className="options-form-actions">
+                <button
+                  className="button"
+                  onClick={() => setAccountSection(null)}
+                  disabled={loading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="button button--primary"
+                  onClick={handleChangeEmail}
+                  disabled={loading || !newEmail}
+                >
+                  <Check size={18} /> {loading ? 'Salvando...' : 'Salvar Email'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {accountSection === 'username' && (
+            <div className="options-form-wrapper">
+              <div className="form-group">
+                <label htmlFor="new-username">Novo Nome de Usuário</label>
+                <input
+                  id="new-username"
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="novo_nome_usuario"
+                  disabled={loading}
+                  minLength={3}
+                  maxLength={30}
+                />
+              </div>
+              <div className="options-form-actions">
+                <button
+                  className="button"
+                  onClick={() => setAccountSection(null)}
+                  disabled={loading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="button button--primary"
+                  onClick={handleChangeUsername}
+                  disabled={loading || !newUsername.trim()}
+                >
+                  <Check size={18} /> {loading ? 'Salvando...' : 'Salvar Nome'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {accountSection === 'password' && (
+            <div className="options-form-wrapper">
+              <div className="form-group">
+                <label htmlFor="current-password">Senha Atual</label>
+                <input
+                  id="current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="new-password">Nova Senha</label>
+                <input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirm-password">Confirme a Senha</label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                />
+              </div>
+              <div className="options-form-actions">
+                <button
+                  className="button"
+                  onClick={() => setAccountSection(null)}
+                  disabled={loading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="button button--primary"
+                  onClick={handleChangePassword}
+                  disabled={loading || !currentPassword || !newPassword || !confirmPassword}
+                >
+                  <Check size={18} /> {loading ? 'Salvando...' : 'Salvar Senha'}
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Progress Section */}
+        <section className="options-card">
+          <div className="options-card-header">
+            <div className="options-card-icon danger">
+              <Shield size={24} />
+            </div>
+            <div>
+              <h2 className="options-card-title">Apagar progresso</h2>
+              <p className="options-card-desc">Gerencie os dados e progresso da sua conta</p>
+            </div>
+          </div>
+
+          <div className="options-info-list" style={{ marginBottom: '1rem' }}>
+            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem', lineHeight: 1.6 }}>
+              Você pode apagar seu progresso de estudo e revisão. Isso irá limpar permanentemente todos os itens em andamento
+              e reiniciar seu histórico de aprendizado. Esta ação <strong>não</strong> pode ser desfeita.
+            </p>
+          </div>
+
+          <div className="options-action-grid">
             <button
-              className="button button--secondary"
-              onClick={() => setAccountSection('email')}
+              className="options-btn options-btn-danger"
+              type="button"
+              onClick={handleResetClick}
               disabled={loading}
             >
-              Alterar Email
-            </button>
-            <button
-              className="button button--secondary"
-              onClick={() => setAccountSection('username')}
-              disabled={loading}
-            >
-              Alterar Nome de Usuário
-            </button>
-            <button
-              className="button button--secondary"
-              onClick={() => setAccountSection('password')}
-              disabled={loading}
-            >
-              Alterar Senha
+              <Trash2 size={18} /> Apagar progresso
             </button>
           </div>
-        )}
-
-        {accountSection === 'email' && (
-          <div className="account-form">
-            <div className="form-group">
-              <label htmlFor="new-email">Novo Email</label>
-              <input
-                id="new-email"
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="novo@email.com"
-                disabled={loading}
-              />
-            </div>
-            <div className="actions__progress">
-              <button
-                className="button"
-                onClick={() => setAccountSection(null)}
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-              <button
-                className="button button--primary"
-                onClick={handleChangeEmail}
-                disabled={loading || !newEmail}
-              >
-                {loading ? 'Atualizando...' : 'Atualizar Email'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {accountSection === 'username' && (
-          <div className="account-form">
-            <div className="form-group">
-              <label htmlFor="new-username">Novo Nome de Usuário</label>
-              <input
-                id="new-username"
-                type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="novo_nome_usuario"
-                disabled={loading}
-                minLength={3}
-                maxLength={30}
-              />
-            </div>
-            <div className="actions__progress">
-              <button
-                className="button"
-                onClick={() => setAccountSection(null)}
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-              <button
-                className="button button--primary"
-                onClick={handleChangeUsername}
-                disabled={loading || !newUsername.trim()}
-              >
-                {loading ? 'Atualizando...' : 'Atualizar Nome de Usuário'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {accountSection === 'password' && (
-          <div className="account-form">
-            <div className="form-group">
-              <label htmlFor="current-password">Senha Atual</label>
-              <input
-                id="current-password"
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="new-password">Nova Senha</label>
-              <input
-                id="new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={loading}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="confirm-password">Confirme a Senha</label>
-              <input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={loading}
-              />
-            </div>
-            <div className="actions__progress">
-              <button
-                className="button"
-                onClick={() => setAccountSection(null)}
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-              <button
-                className="button button--primary"
-                onClick={handleChangePassword}
-                disabled={
-                  loading || !currentPassword || !newPassword || !confirmPassword
-                }
-              >
-                {loading ? 'Atualizando...' : 'Atualizar Senha'}
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Progress Section */}
-      <section className="section">
-        <h2>Progresso</h2>
-        <p>
-          Você pode resetar seu progresso de estudo e revisão. Isso irá limpar todos os itens em andamento
-          e reiniciar seu histórico.
-        </p>
-        <div className="actions__progress">
-          <button
-            className="button button--secondary button--danger"
-            type="button"
-            onClick={handleResetClick}
-            disabled={loading}
-          >
-            Apagar progresso
-          </button>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Reset Modal */}
       {isResetModalOpen && (
         <div className="modal" role="dialog" aria-modal="true">
           <div className="modal__backdrop" onClick={handleCancelReset} />
-          <div className="modal__content">
-            <h2>Apagar todo o progresso</h2>
-            <p>
-              Isso vai apagar todo o progresso do aplicativo e restaurar o estado original.
+          <div className="modal__content" style={{ maxWidth: '400px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--danger)' }}>
+              <AlertTriangle size={28} />
+              <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Apagar progresso?</h2>
+            </div>
+            <p style={{ color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+              Isso vai apagar todo o seu histórico de estudos, itens em revisão e restaurar o estado original.
               Deseja continuar?
             </p>
-            <div className="modal__actions">
+            <div className="modal__actions" style={{ marginTop: '0' }}>
               <button className="button" type="button" onClick={handleCancelReset} disabled={loading}>
                 Cancelar
               </button>
               <button
-                className="button button--primary"
+                className="button button--danger"
+                style={{ background: 'var(--danger)', color: '#fff', borderColor: 'var(--danger)' }}
                 type="button"
                 onClick={handleConfirmReset}
                 disabled={loading}
               >
-                {loading ? 'Apagando...' : 'Apagar progresso'}
+                {loading ? 'Apagando...' : 'Sim, apagar progresso'}
               </button>
             </div>
           </div>

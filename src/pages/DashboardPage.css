@@ -58,6 +58,7 @@
     flex-direction: row;
     flex-wrap: wrap;
   }
+
   .streak-card {
     flex: 1;
     min-width: 140px;
@@ -78,7 +79,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(10px);
   transition: transform 0.2s;
 }
@@ -152,12 +153,12 @@
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
 .stat-box:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   border-color: var(--border);
 }
 
@@ -197,6 +198,7 @@
 .stat-box.highlight .stat-value {
   color: var(--accent);
 }
+
 .stat-box.highlight .stat-icon {
   color: var(--accent);
   opacity: 0.8;
@@ -229,7 +231,7 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
 }
 
 .chart-card h3 {
@@ -252,6 +254,7 @@
   .chart-card {
     padding: 1rem;
   }
+
   .chart-container {
     min-height: 250px;
   }
@@ -262,7 +265,7 @@
   border: 1px solid var(--border);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .custom-tooltip .label {
@@ -368,6 +371,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
