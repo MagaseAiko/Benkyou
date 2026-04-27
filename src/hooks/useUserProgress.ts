@@ -550,6 +550,63 @@ export function useUserProgress() {
     [user?.id]
   )
 
+  // Set Level
+  const setLevel = useCallback(
+    async (level: import('../types').JLPTLevel) => {
+      if (!user?.id) return
+
+      try {
+        setLoading(true)
+        
+        // 1. Update profile JLPT level
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ jlpt_level: level })
+          .eq('id', user.id)
+
+        if (profileError) throw profileError
+
+        // 2. Mark previous levels as mastered
+        const levelsToMaster: import('../types').JLPTLevel[] = []
+        if (level === 'N4') levelsToMaster.push('N5')
+        if (level === 'N3') levelsToMaster.push('N5', 'N4')
+        if (level === 'N2') levelsToMaster.push('N5', 'N4', 'N3')
+        if (level === 'N1') levelsToMaster.push('N5', 'N4', 'N3', 'N2')
+
+        if (levelsToMaster.length > 0) {
+          const { getAllStudyItems } = await import('../services/studyDataService')
+          const allItems = await getAllStudyItems()
+          
+          const itemsToMaster = allItems.filter(item => levelsToMaster.includes(item.level))
+          
+          if (itemsToMaster.length > 0) {
+            const payload = itemsToMaster.map(item => ({
+              user_id: user.id,
+              item_id: item.id,
+              status: 'mastered' as const
+            }))
+
+            const { error: insertError } = await supabase
+              .from('user_study_items')
+              .upsert(payload, { onConflict: 'user_id,item_id' })
+
+            if (insertError) throw insertError
+            
+            const masteredIds = itemsToMaster.map(item => item.id)
+            setMasteredItems(current => Array.from(new Set([...current, ...masteredIds])))
+          }
+        }
+      } catch (err) {
+        console.error('Error setting level:', err)
+        setError((err as Error).message ?? 'Erro ao definir nível')
+        throw err 
+      } finally {
+        setLoading(false)
+      }
+    },
+    [user?.id]
+  )
+
   // Computed values
   const progress: UserProgress = {
     reviewQueue,
@@ -582,5 +639,6 @@ export function useUserProgress() {
     updateReviewForQuality,
     resetItemProgress,
     resetProgress,
+    setLevel,
   }
 }

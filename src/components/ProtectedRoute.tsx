@@ -20,5 +20,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />
   }
 
+  const location = import.meta.env.SSR ? { pathname: '/' } : window.location
+  const hasSeenOnboarding = localStorage.getItem(`onboarding_completed_${user.id}`)
+  
+  if (!hasSeenOnboarding && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />
+  }
+
   return <>{children}</>
 }

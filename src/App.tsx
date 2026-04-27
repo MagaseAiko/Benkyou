@@ -10,6 +10,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { OptionsPage } from './pages/OptionsPage'
 import { AboutPage } from './pages/AboutPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 import './App.css'
 
 export default function App() {
@@ -17,6 +18,14 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <OnboardingPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/*"
           element={

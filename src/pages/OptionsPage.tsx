@@ -177,8 +177,12 @@ export function OptionsPage() {
       setLoading(true)
 
       await resetProgress()
+      localStorage.removeItem(`onboarding_completed_${user?.id}`)
       showToast('Progresso foi resetado com sucesso.', 'success')
       setIsResetModalOpen(false)
+      // The ProtectedRoute or App will automatically handle the redirect since local storage is cleared
+      // But we can also use window.location to force the reload and re-check
+      window.location.href = '/onboarding'
     } catch (err) {
       showToast((err as Error).message ?? 'Erro ao resetar progresso', 'error')
     } finally {
