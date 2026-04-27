@@ -75,8 +75,8 @@
 
 .hint-button.active {
   background: var(--button-bg);
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--button-text);
+  border-color: var(--button-bg);
 }
 
 .hint-content {

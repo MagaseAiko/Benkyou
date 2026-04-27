@@ -263,7 +263,7 @@
 .about-page__level-card:hover {
   background: var(--surface);
   transform: scale(1.03);
-  box-shadow: 0 4px 12px rgba(100, 113, 255, 0.15);
+  box-shadow: 0 4px 12px var(--border);
 }
 
 .about-page__level-card h4 {
@@ -499,11 +499,11 @@
 /* Light Mode Support */
 @media (prefers-color-scheme: light) {
   .about-page__level-card {
-    border-color: #6471ff;
+    border-color: var(--accent);
   }
   
   .about-page__github-link:hover {
-    background: rgba(100, 113, 255, 0.1);
+    background: var(--border-soft);
   }
   
   .about-page__contact-link:hover {
