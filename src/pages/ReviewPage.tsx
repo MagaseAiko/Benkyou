@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef, Fragment } from 'react'
 import { Flashcard } from '../components/Flashcard'
+import { useAuth } from '../hooks/useAuth'
 import { useUserProgress } from '../hooks/useUserProgress'
 import { useStudyItem } from '../hooks/useStudyData'
 import { useToast } from '../hooks/useToast'
@@ -111,6 +112,7 @@ function isCloseAnswer(answer: string, expected: string) {
 }
 
 export function ReviewPage() {
+  const { user } = useAuth()
   const { reviewQueueDue, updateReviewForQuality } = useUserProgress()
   const { message, toastType, showToast, closeToast } = useToast()
   
@@ -124,16 +126,47 @@ export function ReviewPage() {
   
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const current = reviewQueueDue[0]
-  const { item, isLoading: itemLoading } = useStudyItem(current?.id ?? '')
+  const isTourActive = user && localStorage.getItem(`tour_completed_${user.id}`) !== 'true'
+
+  let currentId = reviewQueueDue[0]?.id
+  let isMock = false
+
+  if (!currentId && isTourActive) {
+    currentId = 'mock-tour'
+    isMock = true
+  }
+
+  const { item: realItem, isLoading: itemLoading } = useStudyItem(currentId === 'mock-tour' ? '' : (currentId ?? ''))
+
+  const mockItem = useMemo(() => ({
+    id: 'mock-tour',
+    level: 'N5',
+    type: 'grammar',
+    japanese: 'は',
+    reading: 'wa',
+    translation: 'Partícula de tópico',
+    explanation: 'A partícula は marca o tópico da frase.',
+    structure: '[Substantivo] は [Predicado]',
+    examples: []
+  }), [])
+
+  const item = isMock ? mockItem as any : realItem
+  const current = isMock ? { id: 'mock-tour' } : reviewQueueDue[0]
+
+  const mockSentence = useMemo(() => ({
+    sentence: "これ____何ですか。",
+    translation: "O que é isto?",
+    answers: ["は", "wa"]
+  }), [])
 
   const completionSentence = useMemo<ReviewSentence | null>(() => {
+    if (isMock) return mockSentence
     if (!item?.review_sentences || item.review_sentences.length === 0) return null
     const index = Math.floor(Math.random() * item.review_sentences.length)
     return item.review_sentences[index]
-  }, [item?.id])
+  }, [item?.id, isMock, mockSentence])
 
-  if (current && itemLoading) {
+  if (current && itemLoading && !isMock) {
     return (
       <main className="page">
         <header className="page__header">
@@ -158,6 +191,11 @@ export function ReviewPage() {
     (quality: 'forgot' | 'continue' | 'remembered') => {
       if (!current) return
 
+      if (isMock) {
+        showToast('Esta foi apenas uma demonstração prática do tour!')
+        return
+      }
+
       const toastMsg =
         quality === 'forgot'
           ? 'Você verá este item novamente hoje.'
@@ -168,10 +206,10 @@ export function ReviewPage() {
       showToast(toastMsg)
       updateReviewForQuality(current.id, quality)
     },
-    [current, showToast, updateReviewForQuality],
+    [current, showToast, updateReviewForQuality, isMock],
   )
 
-  const handleCheckCompletion = () => {
+  const handleCheckCompletion = useCallback(() => {
     if (!completionSentence) return
     const normalizedAnswer = normalizeAnswer(completionAnswer)
     const isCorrect = completionSentence.answers.some((answer) => normalizeAnswer(answer) === normalizedAnswer)
@@ -182,7 +220,19 @@ export function ReviewPage() {
       setCompletionResultStatus(isClose ? 'close' : 'wrong')
     }
     setShowCompletionResult(true)
-  }
+
+    if (isMock) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event('tour-next-step'))
+      }, 100)
+    }
+  }, [completionSentence, completionAnswer, isMock])
+
+  useEffect(() => {
+    const handleForceVerify = () => handleCheckCompletion()
+    window.addEventListener('tour-force-verify', handleForceVerify)
+    return () => window.removeEventListener('tour-force-verify', handleForceVerify)
+  }, [handleCheckCompletion])
 
   const renderInlineSentence = () => {
     if (!completionSentence) return null
@@ -283,7 +333,7 @@ export function ReviewPage() {
                     className="button button--primary"
                     type="button"
                     onClick={handleCheckCompletion}
-                    disabled={completionAnswer.trim() === ''}
+                    disabled={completionAnswer.trim() === '' && !isMock}
                   >
                     Verificar
                   </button>
@@ -306,7 +356,7 @@ export function ReviewPage() {
                   )}
 
                   <div className="review-actions">
-                    <button className="button" type="button" onClick={() => setShowGrammarModal(true)}>
+                    <button className="button button-show-info" type="button" onClick={() => setShowGrammarModal(true)}>
                       <Info size={18} style={{ marginRight: '0.5rem' }} /> Ver explicação
                     </button>
                     {completionResultStatus === 'correct' ? (
@@ -370,7 +420,7 @@ export function ReviewPage() {
               <div className="completion-result__examples">
                 <h3 style={{ marginBottom: '1rem' }}>Exemplos</h3>
                 <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {item.examples.map((example) => (
+                  {item.examples.map((example: any) => (
                     <li key={example.japanese} style={{ background: 'var(--surface-alt)', padding: '1rem', borderRadius: '8px' }}>
                       <div style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                         <HighlightedText

@@ -11,6 +11,7 @@ import { OptionsPage } from './pages/OptionsPage'
 import { AboutPage } from './pages/AboutPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { SystemTour } from './components/SystemTour'
 import './App.css'
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
             <ProtectedRoute>
               <div className="app">
                 <Navbar />
+                <SystemTour />
                 <main className="app__main">
                   <Routes>
                     <Route path="/" element={<HomePage />} />

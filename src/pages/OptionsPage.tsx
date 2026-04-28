@@ -230,7 +230,7 @@ export function OptionsPage() {
           </div>
 
           {accountSection === null && (
-            <div className="options-action-grid">
+            <div className="options-action-grid tour-account-actions">
               <button
                 className="options-btn"
                 onClick={() => setAccountSection('email')}
@@ -395,7 +395,7 @@ export function OptionsPage() {
             </p>
           </div>
 
-          <div className="options-action-grid">
+          <div className="options-action-grid tour-danger-actions">
             <button
               className="options-btn options-btn-danger"
               type="button"

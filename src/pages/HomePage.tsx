@@ -47,7 +47,7 @@ export function HomePage() {
         <p>Escolha um nível para ver gramática e vocabulário.</p>
       </header>
 
-      <section className="card-grid">
+      <section className="card-grid" data-tour="home-levels">
         {JLPT_LEVELS.map((level) => (
           <LevelCard
             key={level}

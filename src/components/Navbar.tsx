@@ -61,6 +61,7 @@ export function Navbar() {
                   className={({ isActive }) =>
                     `navbar__link ${isActive ? 'navbar__link--active' : ''}`
                   }
+                  data-tour={`nav-${item.to === '/' ? 'home' : item.to.replace('/', '')}`}
                 >
                   {item.label}
                 </NavLink>
@@ -69,7 +70,7 @@ export function Navbar() {
 
             <div className="navbar__actions">
               {user && (
-                <span className="navbar__streak" title={`Sequência atual: ${profile.currentStreak} dias`}>
+                <span className="navbar__streak" data-tour="nav-streak" title={`Sequência atual: ${profile.currentStreak} dias`}>
                   <img
                     src="/Streak.png"
                     alt="Streak"
