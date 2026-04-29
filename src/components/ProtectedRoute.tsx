@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { useUserProgress } from '../hooks/useUserProgress'
+import { useUserProgressContext } from '../contexts/UserProgressContext'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading } = useAuth()
-  const { profile, loading: progressLoading } = useUserProgress()
+  const { profile, loading: progressLoading } = useUserProgressContext()
   const loading = authLoading || progressLoading
 
   if (loading) {
@@ -24,8 +24,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   const location = import.meta.env.SSR ? { pathname: '/' } : window.location
-  if (profile.jlptLevel === null && location.pathname !== '/onboarding') {
+  const isOnboardingPage = location.pathname === '/onboarding'
+
+  if (profile.jlptLevel === null && !isOnboardingPage) {
     return <Navigate to="/onboarding" replace />
+  }
+
+  if (profile.jlptLevel !== null && isOnboardingPage) {
+    return <Navigate to="/" replace />
   }
 
   return <>{children}</>

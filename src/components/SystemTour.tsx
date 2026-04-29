@@ -255,7 +255,7 @@ export function SystemTour() {
   }
 
   // Cria steps responsivos
-  const responsiveSteps: Step[] = steps.map((step, idx) => ({
+  const responsiveSteps: Step[] = steps.map((step) => ({
     ...step,
     placement: getResponsivePlacement(step.placement)
   }))
@@ -274,6 +274,7 @@ export function SystemTour() {
         arrowColor: 'var(--surface)',
         overlayColor: 'rgba(0, 0, 0, 0.75)',
         zIndex: 10000,
+        buttons: ['back', 'close', 'primary', 'skip'],
       }}
       styles={{
         tooltip: {
@@ -301,7 +302,7 @@ export function SystemTour() {
           padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
           fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
         }
-      }}
+      } as any}
       locale={{
         back: 'Voltar',
         close: 'Fechar',

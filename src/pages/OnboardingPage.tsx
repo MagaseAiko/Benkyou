@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { useUserProgress } from '../hooks/useUserProgress'
+import { useUserProgressContext } from '../contexts/UserProgressContext'
+import { useToast } from '../hooks/useToast'
 import type { JLPTLevel } from '../types'
 import { Check, ChevronRight, Sprout, BookOpen, MessageCircle, Mountain, Crown, Sparkles, Info } from 'lucide-react'
 import './OnboardingPage.css'
@@ -17,7 +18,8 @@ const LEVELS: { id: JLPTLevel; title: string; desc: string; icon: React.ReactNod
 export function OnboardingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { setLevel } = useUserProgress()
+  const { setLevel } = useUserProgressContext()
+  const { showToast } = useToast()
   const [selectedLevel, setSelectedLevel] = useState<JLPTLevel | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -26,10 +28,15 @@ export function OnboardingPage() {
 
     try {
       setLoading(true)
+      console.log('📝 Setting level:', { level: selectedLevel, userId: user.id })
       await setLevel(selectedLevel)
-      navigate('/')
+      console.log('✅ Level set successfully, navigating to home...')
+      showToast(`Nível ${selectedLevel} selecionado!`, 'success')
+      navigate('/', { replace: true })
     } catch (error) {
-      console.error(error)
+      console.error('❌ Error setting level:', error)
+      const message = error instanceof Error ? error.message : 'Erro ao definir nível'
+      showToast(message, 'error')
       setLoading(false)
     }
   }

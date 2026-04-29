@@ -12,45 +12,48 @@ import { AboutPage } from './pages/AboutPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { SystemTour } from './components/SystemTour'
+import { UserProgressProvider } from './contexts/UserProgressContext'
 import './App.css'
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/onboarding"
-          element={
-            <ProtectedRoute>
-              <OnboardingPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <div className="app">
-                <Navbar />
-                <SystemTour />
-                <main className="app__main">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/level/:level" element={<LevelPage />} />
-                    <Route path="/level/:level/:type/:id" element={<StudyItemPage />} />
-                    <Route path="/review" element={<ReviewPage />} />
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/options" element={<OptionsPage />} />
-                    <Route path="*" element={<NotFoundPage />} />
-                  </Routes>
-                </main>
-              </div>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+    <UserProgressProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <div className="app">
+                  <Navbar />
+                  <SystemTour />
+                  <main className="app__main">
+                    <Routes>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/level/:level" element={<LevelPage />} />
+                      <Route path="/level/:level/:type/:id" element={<StudyItemPage />} />
+                      <Route path="/review" element={<ReviewPage />} />
+                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/about" element={<AboutPage />} />
+                      <Route path="/options" element={<OptionsPage />} />
+                      <Route path="*" element={<NotFoundPage />} />
+                    </Routes>
+                  </main>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </UserProgressProvider>
   )
 }

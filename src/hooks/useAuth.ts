@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../utils/supabase'
+import { isRLSViolation } from '../utils/auth-helpers'
 
 type AuthContextType = {
   user: User | null
@@ -84,16 +85,14 @@ export function useAuth(): AuthContextType {
         throw signUpError
       }
 
-      // Create profile if user was created
-      if (data.user) {
-        const profilePayload: Record<string, unknown> = {
-          id: data.user.id,
+      // 🔐 SECURE: Only create profile if user was created successfully
+      // User ID comes from Supabase auth response (trusted source)
+      if (data.user?.id) {
+        const profilePayload = {
+          id: data.user.id, // ✅ Safe: from auth response
           jlpt_level: null,
           has_completed_onboarding: false,
-        }
-
-        if (username) {
-          profilePayload.username = username.trim()
+          username: username?.trim() || undefined,
         }
 
         const { error: profileError } = await supabase
@@ -101,8 +100,16 @@ export function useAuth(): AuthContextType {
           .insert(profilePayload)
 
         if (profileError) {
-          console.error('Error creating profile:', profileError)
-          // Don't throw here as the user account was created successfully
+          console.error('⚠️ Profile creation warning:', profileError)
+          // 🚨 RLS violation = profile already exists or user_id mismatch
+          if (isRLSViolation(profileError)) {
+            console.error('❌ RLS VIOLATION in profile insert:', {
+              userId: data.user.id,
+              code: profileError.code,
+            })
+          }
+          // Don't throw - user account was created successfully,
+          // profile creation might be handled differently
         }
       }
     } catch (err) {

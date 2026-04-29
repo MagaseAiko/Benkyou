@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useEffect, useState } from 'react'
 import type { ReviewItem, UserProgress, UserProfile } from '../types'
 import { supabase } from '../utils/supabase'
+import { isRLSViolation } from '../utils/auth-helpers'
 import { useAuth } from './useAuth'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -19,24 +20,38 @@ async function trackDailyActivityForUser(userId: string) {
   const today = getUTCDateString()
   const yesterday = getYesterdayUTCDateString()
 
+  // 🔐 SECURE: Upsert with explicit user_id from parameter (already validated by caller)
   const { error: activityError } = await supabase
     .from('user_daily_activity')
     .upsert({
-      user_id: userId,
+      user_id: userId, // ✅ From validated parameter
       activity_date: today,
     })
 
   if (activityError) {
+    if (isRLSViolation(activityError)) {
+      console.error('❌ RLS VIOLATION: user_daily_activity upsert failed', {
+        userId,
+        code: activityError.code,
+      })
+    }
     throw activityError
   }
 
+  // 🔐 SECURE: Select only from this user's profile
   const { data: profileRow, error: profileError } = await supabase
     .from('profiles')
-    .select('current_streak,longest_streak,last_activity_date')
-    .eq('id', userId)
+    .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
+    .eq('id', userId) // ✅ RLS will enforce auth.uid() = id
     .maybeSingle()
 
   if (profileError) {
+    if (isRLSViolation(profileError)) {
+      console.error('❌ RLS VIOLATION: profiles select failed', {
+        userId,
+        code: profileError.code,
+      })
+    }
     throw profileError
   }
 
@@ -54,19 +69,28 @@ async function trackDailyActivityForUser(userId: string) {
       currentStreak: profileRow.current_streak ?? 0,
       longestStreak: profileRow.longest_streak ?? 0,
       lastActivityDate: profileRow.last_activity_date,
+      jlptLevel: profileRow.jlpt_level ?? null,
+      hasCompletedOnboarding: profileRow.has_completed_onboarding ?? false,
     }
   }
 
+  // 🔐 SECURE: Update only this user's profile
   const { error: updateError } = await supabase
     .from('profiles')
     .upsert({
-      id: userId,
+      id: userId, // ✅ RLS will enforce auth.uid() = id
       current_streak: currentStreak,
       longest_streak: longestStreak,
       last_activity_date: today,
     })
 
   if (updateError) {
+    if (isRLSViolation(updateError)) {
+      console.error('❌ RLS VIOLATION: profiles upsert failed', {
+        userId,
+        code: updateError.code,
+      })
+    }
     throw updateError
   }
 
@@ -74,7 +98,9 @@ async function trackDailyActivityForUser(userId: string) {
     currentStreak,
     longestStreak,
     lastActivityDate: today,
-  } as UserProfile
+    jlptLevel: profileRow?.jlpt_level ?? null,
+    hasCompletedOnboarding: profileRow?.has_completed_onboarding ?? false,
+  }
 }
 
 export type ReviewQuality = 'forgot' | 'continue' | 'remembered'
@@ -170,39 +196,70 @@ export function useUserProgress() {
         setLoading(true)
         setError(null)
 
-        // Load review queue
+        // 🔐 SECURE: Load only this user's review queue
         const { data: reviewData, error: reviewError } = await supabase
           .from('user_review_queue')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
 
         console.log('📊 Review queue response:', {
           count: reviewData?.length ?? 0,
           error: reviewError?.message,
         })
 
-        if (reviewError) throw reviewError
+        if (reviewError) {
+          if (isRLSViolation(reviewError)) {
+            console.error('❌ RLS VIOLATION: user_review_queue select failed', {
+              userId: user.id,
+              code: reviewError.code,
+            })
+          }
+          throw reviewError
+        }
 
-        // Load study items
+        // 🔐 SECURE: Load only this user's study items
         const { data: studyData, error: studyError } = await supabase
           .from('user_study_items')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
 
         console.log('📝 Study items response:', {
           count: studyData?.length ?? 0,
           error: studyError?.message,
         })
 
-        if (studyError) throw studyError
+        if (studyError) {
+          if (isRLSViolation(studyError)) {
+            console.error('❌ RLS VIOLATION: user_study_items select failed', {
+              userId: user.id,
+              code: studyError.code,
+            })
+          }
+          throw studyError
+        }
 
+        // 🔐 SECURE: Load only this user's profile
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
-          .eq('id', user.id)
+          .eq('id', user.id) // ✅ RLS enforces auth.uid() = id
           .maybeSingle()
 
-        if (profileError) throw profileError
+        console.log('👤 Profile response:', {
+          jlptLevel: profileData?.jlpt_level,
+          hasData: profileData !== null,
+          error: profileError?.message,
+        })
+
+        if (profileError) {
+          if (isRLSViolation(profileError)) {
+            console.error('❌ RLS VIOLATION: profiles select failed', {
+              userId: user.id,
+              code: profileError.code,
+            })
+          }
+          throw profileError
+        }
 
         if (isMounted) {
           // Convert review queue data
@@ -265,21 +322,29 @@ export function useUserProgress() {
       }
 
       try {
+        // 🔐 SECURE: Explicitly set user_id from authenticated user
         const payload = {
-          user_id: user.id,
+          user_id: user.id, // ✅ From useAuth hook (trusted source)
           item_id: item.id,
           next_review: timestampToISO(item.nextReview),
           interval: item.interval,
           ease_factor: item.easeFactor,
         }
 
-        console.log('📤 Upserting review item:', { item_id: item.id, interval: item.interval })
+        console.log('📤 Upserting review item:', { user_id: user.id, item_id: item.id, interval: item.interval })
 
         const { error } = await supabase.from('user_review_queue').upsert(payload, {
           onConflict: 'user_id,item_id',
         })
 
         if (error) {
+          if (isRLSViolation(error)) {
+            console.error('❌ RLS VIOLATION: user_review_queue upsert failed', {
+              userId: user.id,
+              code: error.code,
+              message: error.message,
+            })
+          }
           console.error('❌ Supabase upsert error:', error)
           throw error
         }
@@ -302,16 +367,29 @@ export function useUserProgress() {
   // Remove from review
   const removeFromReview = useCallback(
     async (itemId: string) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.warn('⚠️ removeFromReview: user.id is missing')
+        return
+      }
 
       try {
+        // 🔐 SECURE: Delete only from this user's review queue
         const { error } = await supabase
           .from('user_review_queue')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
           .eq('item_id', itemId)
 
-        if (error) throw error
+        if (error) {
+          if (isRLSViolation(error)) {
+            console.error('❌ RLS VIOLATION: user_review_queue delete failed', {
+              userId: user.id,
+              itemId,
+              code: error.code,
+            })
+          }
+          throw error
+        }
 
         // Update local state optimistically
         setReviewQueue((current) =>
@@ -328,23 +406,35 @@ export function useUserProgress() {
   // Mark mastered
   const markMastered = useCallback(
     async (itemId: string) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.warn('⚠️ markMastered: user.id is missing')
+        return
+      }
 
       try {
-        // Remove from review queue
+        // Remove from review queue first
         await removeFromReview(itemId)
 
-        // Update study item status
+        // 🔐 SECURE: Upsert study item with explicit user_id
         const { error } = await supabase.from('user_study_items').upsert(
           {
-            user_id: user.id,
+            user_id: user.id, // ✅ From authenticated user
             item_id: itemId,
             status: 'mastered',
           },
           { onConflict: 'user_id,item_id' }
         )
 
-        if (error) throw error
+        if (error) {
+          if (isRLSViolation(error)) {
+            console.error('❌ RLS VIOLATION: user_study_items upsert failed', {
+              userId: user.id,
+              itemId,
+              code: error.code,
+            })
+          }
+          throw error
+        }
 
         // Update local state optimistically
         setMasteredItems((current) =>
@@ -368,25 +458,33 @@ export function useUserProgress() {
   const addToStudying = useCallback(
     async (itemId: string) => {
       if (!user?.id) {
-        console.error('Cannot add to studying: user.id is missing!', { user })
+        console.error('❌ Cannot add to studying: user.id is missing!', { user })
         setError('Erro: Usuário não identificado. Faça login novamente.')
         return
       }
 
       try {
+        // 🔐 SECURE: Explicitly set user_id from authenticated user
         const payload = {
-          user_id: user.id,
+          user_id: user.id, // ✅ From useAuth hook
           item_id: itemId,
           status: 'studying' as const,
         }
 
-        console.log('Adding to studying:', payload)
+        console.log('Adding to studying:', { user_id: user.id, item_id: itemId })
 
         const { error } = await supabase.from('user_study_items').upsert(payload, {
           onConflict: 'user_id,item_id',
         })
 
         if (error) {
+          if (isRLSViolation(error)) {
+            console.error('❌ RLS VIOLATION: user_study_items upsert failed', {
+              userId: user.id,
+              itemId,
+              code: error.code,
+            })
+          }
           console.error('Supabase addToStudying error:', error)
           throw error
         }
@@ -481,26 +579,47 @@ export function useUserProgress() {
   // Reset item progress
   const resetItemProgress = useCallback(
     async (itemId: string) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.warn('⚠️ resetItemProgress: user.id is missing')
+        return
+      }
 
       try {
-        // Remove from review queue
+        // 🔐 SECURE: Delete only from this user's data
         const { error: reviewError } = await supabase
           .from('user_review_queue')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
           .eq('item_id', itemId)
 
-        if (reviewError) throw reviewError
+        if (reviewError) {
+          if (isRLSViolation(reviewError)) {
+            console.error('❌ RLS VIOLATION: user_review_queue delete failed', {
+              userId: user.id,
+              itemId,
+              code: reviewError.code,
+            })
+          }
+          throw reviewError
+        }
 
-        // Remove from study items
+        // 🔐 SECURE: Delete only from this user's study items
         const { error: studyError } = await supabase
           .from('user_study_items')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
           .eq('item_id', itemId)
 
-        if (studyError) throw studyError
+        if (studyError) {
+          if (isRLSViolation(studyError)) {
+            console.error('❌ RLS VIOLATION: user_study_items delete failed', {
+              userId: user.id,
+              itemId,
+              code: studyError.code,
+            })
+          }
+          throw studyError
+        }
 
         // Update local state optimistically
         setReviewQueue((current) =>
@@ -523,31 +642,59 @@ export function useUserProgress() {
   // Reset all progress
   const resetProgress = useCallback(
     async () => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.warn('⚠️ resetProgress: user.id is missing')
+        return
+      }
 
       try {
-        // Delete all review queue entries
+        // 🔐 SECURE: Delete only this user's review queue
         const { error: reviewError } = await supabase
           .from('user_review_queue')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
 
-        if (reviewError) throw reviewError
+        if (reviewError) {
+          if (isRLSViolation(reviewError)) {
+            console.error('❌ RLS VIOLATION: user_review_queue bulk delete failed', {
+              userId: user.id,
+              code: reviewError.code,
+            })
+          }
+          throw reviewError
+        }
 
-        // Delete all study items
+        // 🔐 SECURE: Delete only this user's study items
         const { error: studyError } = await supabase
           .from('user_study_items')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', user.id) // ✅ RLS enforces auth.uid() = user_id
 
-        if (studyError) throw studyError
+        if (studyError) {
+          if (isRLSViolation(studyError)) {
+            console.error('❌ RLS VIOLATION: user_study_items bulk delete failed', {
+              userId: user.id,
+              code: studyError.code,
+            })
+          }
+          throw studyError
+        }
 
+        // 🔐 SECURE: Update only this user's profile
         const { error: profileError } = await supabase
           .from('profiles')
           .update({ jlpt_level: null, has_completed_onboarding: false })
-          .eq('id', user.id)
+          .eq('id', user.id) // ✅ RLS enforces auth.uid() = id
 
-        if (profileError) throw profileError
+        if (profileError) {
+          if (isRLSViolation(profileError)) {
+            console.error('❌ RLS VIOLATION: profiles update failed', {
+              userId: user.id,
+              code: profileError.code,
+            })
+          }
+          throw profileError
+        }
 
         // Update local state optimistically
         setReviewQueue([])
@@ -569,27 +716,67 @@ export function useUserProgress() {
   // Set Level
   const setLevel = useCallback(
     async (level: import('../types').JLPTLevel) => {
-      if (!user?.id) return
+      if (!user?.id) {
+        console.warn('⚠️ setLevel: user.id is missing')
+        return
+      }
 
       try {
         setLoading(true)
-        
-        // 1. Upsert profile JLPT level (handles missing profile rows too)
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(
-            { id: user.id, jlpt_level: level, has_completed_onboarding: false },
-            { onConflict: 'id' }
-          )
 
-        if (profileError) throw profileError
-
+        // Optimistic update
         setProfile((current) => ({
           ...current,
           jlptLevel: level,
+          hasCompletedOnboarding: false,
         }))
 
-        // 2. Mark previous levels as mastered
+        // 🔐 SECURE: Ensure profile exists and update the level atomically
+        const { data, error: profileError } = await supabase
+          .from('profiles')
+          .upsert(
+            {
+              id: user.id,
+              jlpt_level: level,
+              has_completed_onboarding: false,
+            },
+            { onConflict: 'id' }
+          )
+          .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
+
+        if (profileError) {
+          if (isRLSViolation(profileError)) {
+            console.error('❌ RLS VIOLATION: profiles upsert failed during setLevel', {
+              userId: user.id,
+              level,
+              code: profileError.code,
+            })
+          }
+          throw profileError
+        }
+
+        const profileData = Array.isArray(data) ? data[0] : data
+
+        if (!profileData) {
+          console.warn('⚠️ Profile upsert returned no rows; using fallback profile state')
+          setProfile((current) => ({
+            ...current,
+            jlptLevel: level,
+            hasCompletedOnboarding: false,
+          }))
+        } else {
+          setProfile({
+            currentStreak: profileData.current_streak ?? 0,
+            longestStreak: profileData.longest_streak ?? 0,
+            lastActivityDate: profileData.last_activity_date ?? null,
+            jlptLevel: profileData.jlpt_level ?? null,
+            hasCompletedOnboarding: profileData.has_completed_onboarding ?? false,
+          })
+        }
+
+        console.log('✅ Level updated successfully:', { userId: user.id, level })
+
+        // 2. Mark previous levels as mastered in best-effort mode
         const levelsToMaster: import('../types').JLPTLevel[] = []
         if (level === 'N4') levelsToMaster.push('N5')
         if (level === 'N3') levelsToMaster.push('N5', 'N4')
@@ -597,32 +784,51 @@ export function useUserProgress() {
         if (level === 'N1') levelsToMaster.push('N5', 'N4', 'N3', 'N2')
 
         if (levelsToMaster.length > 0) {
-          const { getAllStudyItems } = await import('../services/studyDataService')
-          const allItems = await getAllStudyItems()
-          
-          const itemsToMaster = allItems.filter(item => levelsToMaster.includes(item.level))
-          
-          if (itemsToMaster.length > 0) {
-            const payload = itemsToMaster.map(item => ({
-              user_id: user.id,
-              item_id: item.id,
-              status: 'mastered' as const
-            }))
+          try {
+            const { getAllStudyItems } = await import('../services/studyDataService')
+            const allItems = await getAllStudyItems()
 
-            const { error: insertError } = await supabase
-              .from('user_study_items')
-              .upsert(payload, { onConflict: 'user_id,item_id' })
+            const itemsToMaster = allItems.filter((item) => levelsToMaster.includes(item.level))
 
-            if (insertError) throw insertError
-            
-            const masteredIds = itemsToMaster.map(item => item.id)
-            setMasteredItems(current => Array.from(new Set([...current, ...masteredIds])))
+            if (itemsToMaster.length > 0) {
+              const payload = itemsToMaster.map((item) => ({
+                user_id: user.id,
+                item_id: item.id,
+                status: 'mastered' as const,
+              }))
+
+              const { error: insertError } = await supabase
+                .from('user_study_items')
+                .upsert(payload, { onConflict: 'user_id,item_id' })
+
+              if (insertError) {
+                if (isRLSViolation(insertError)) {
+                  console.error('❌ RLS VIOLATION: user_study_items bulk upsert failed', {
+                    userId: user.id,
+                    level,
+                    code: insertError.code,
+                  })
+                }
+                console.warn('⚠️ Non-fatal error upserting mastered items', insertError)
+              } else {
+                const masteredIds = itemsToMaster.map((item) => item.id)
+                setMasteredItems((current) => Array.from(new Set([...current, ...masteredIds])))
+              }
+            }
+          } catch (err) {
+            console.warn('⚠️ Non-fatal error while setting mastered levels', err)
           }
         }
       } catch (err) {
         console.error('Error setting level:', err)
+        // Revert optimistic update
+        setProfile((current) => ({
+          ...current,
+          jlptLevel: null,
+          hasCompletedOnboarding: false,
+        }))
         setError((err as Error).message ?? 'Erro ao definir nível')
-        throw err 
+        throw err
       } finally {
         setLoading(false)
       }
@@ -631,15 +837,27 @@ export function useUserProgress() {
   )
 
   const completeOnboarding = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id) {
+      console.warn('⚠️ completeOnboarding: user.id is missing')
+      return
+    }
 
     try {
+      // 🔐 SECURE: Update only this user's profile
       const { error } = await supabase
         .from('profiles')
         .update({ has_completed_onboarding: true })
-        .eq('id', user.id)
+        .eq('id', user.id) // ✅ RLS enforces auth.uid() = id
 
-      if (error) throw error
+      if (error) {
+        if (isRLSViolation(error)) {
+          console.error('❌ RLS VIOLATION: profiles update failed during completeOnboarding', {
+            userId: user.id,
+            code: error.code,
+          })
+        }
+        throw error
+      }
 
       setProfile((current) => ({
         ...current,
