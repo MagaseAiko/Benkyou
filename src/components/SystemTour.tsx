@@ -170,6 +170,35 @@ export function SystemTour() {
     }
   ]
 
+  const scrollToElement = (targetStr: string, offset = 0) => {
+    setTimeout(() => {
+      const element = document.querySelector(targetStr)
+      if (element) {
+        const isMobile = window.innerWidth < 768
+        const headerHeight = 80 // Aproximado da navbar
+        const tooltipHeight = isMobile ? 300 : 200 // Estimativa
+        const padding = 20
+        
+        const elementRect = element.getBoundingClientRect()
+        const scrollTop = window.scrollY
+        const elementTop = elementRect.top + scrollTop
+        
+        // Calcula a posição ideal para scroll
+        const targetScrollPosition = elementTop - headerHeight - tooltipHeight - padding + offset
+        
+        window.scrollTo({
+          top: Math.max(0, targetScrollPosition),
+          behavior: 'smooth'
+        })
+
+        // Fallback para scrollIntoView se o elemento estiver muito pequeno
+        if (elementRect.height < 50 && elementRect.top < 100) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }
+    }, 100)
+  }
+
   const handleJoyrideCallback = (data: EventData) => {
     const { action, index, status, type } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
@@ -177,13 +206,7 @@ export function SystemTour() {
     if (type === EVENTS.TOOLTIP) {
       const step = steps[index]
       if (step && step.target && typeof step.target === 'string') {
-        const targetStr = step.target
-        setTimeout(() => {
-          const element = document.querySelector(targetStr)
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }
-        }, 50)
+        scrollToElement(step.target)
       }
     } else if (type === EVENTS.STEP_AFTER) {
       if (index === 8 && action === ACTIONS.NEXT) {
@@ -211,9 +234,30 @@ export function SystemTour() {
     }
   }
 
+  const getResponsiveTooltipWidth = () => {
+    if (typeof window === 'undefined') return 400
+    const width = window.innerWidth
+    if (width < 480) return width - 40 // Mobile pequeno
+    if (width < 768) return width - 60 // Mobile médio
+    return 400 // Desktop
+  }
+
+  const getResponsivePlacement = (placement: any): any => {
+    if (typeof window === 'undefined') return placement
+    if (window.innerWidth < 768 && placement === 'bottom') return 'top'
+    if (window.innerWidth < 768 && placement === 'left') return 'right'
+    return placement
+  }
+
+  // Cria steps responsivos
+  const responsiveSteps: Step[] = steps.map((step, idx) => ({
+    ...step,
+    placement: getResponsivePlacement(step.placement)
+  }))
+
   return (
     <Joyride
-      steps={steps}
+      steps={responsiveSteps}
       run={run}
       stepIndex={stepIndex}
       continuous
@@ -230,13 +274,27 @@ export function SystemTour() {
         tooltip: {
           borderRadius: '12px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-          padding: '24px',
-          maxWidth: '400px',
+          padding: window.innerWidth < 480 ? '16px' : '24px',
+          maxWidth: getResponsiveTooltipWidth(),
+          fontSize: window.innerWidth < 480 ? '0.875rem' : '1rem',
+          lineHeight: window.innerWidth < 480 ? '1.4' : '1.6',
         },
         tooltipContainer: {
           textAlign: 'left',
-          fontSize: '1rem',
-          lineHeight: '1.6',
+          fontSize: window.innerWidth < 480 ? '0.875rem' : '1rem',
+          lineHeight: window.innerWidth < 480 ? '1.4' : '1.6',
+        },
+        buttonNext: {
+          padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
+          fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
+        },
+        buttonBack: {
+          padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
+          fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
+        },
+        buttonSkip: {
+          padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
+          fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
         }
       }}
       locale={{
