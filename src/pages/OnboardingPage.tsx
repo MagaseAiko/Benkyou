@@ -27,7 +27,6 @@ export function OnboardingPage() {
     try {
       setLoading(true)
       await setLevel(selectedLevel)
-      localStorage.setItem(`onboarding_completed_${user.id}`, 'true')
       navigate('/')
     } catch (error) {
       console.error(error)

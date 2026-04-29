@@ -113,7 +113,7 @@ function isCloseAnswer(answer: string, expected: string) {
 
 export function ReviewPage() {
   const { user } = useAuth()
-  const { reviewQueueDue, updateReviewForQuality } = useUserProgress()
+  const { reviewQueueDue, updateReviewForQuality, profile } = useUserProgress()
   const { message, toastType, showToast, closeToast } = useToast()
   
   const [completionAnswer, setCompletionAnswer] = useState('')
@@ -126,7 +126,10 @@ export function ReviewPage() {
   
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const isTourActive = user && localStorage.getItem(`tour_completed_${user.id}`) !== 'true'
+  const isTourActive =
+    user &&
+    profile.jlptLevel !== null &&
+    profile.hasCompletedOnboarding === false
 
   let currentId = reviewQueueDue[0]?.id
   let isMock = false

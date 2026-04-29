@@ -3,29 +3,34 @@ import { Joyride } from 'react-joyride'
 import type { EventData, Step } from 'react-joyride'
 import { STATUS, EVENTS, ACTIONS } from 'react-joyride'
 import { useAuth } from '../hooks/useAuth'
+import { useUserProgress } from '../hooks/useUserProgress'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 export function SystemTour() {
   const { user } = useAuth()
+  const { profile, loading, completeOnboarding } = useUserProgress()
   const location = useLocation()
   const navigate = useNavigate()
+
+  const currentLevel = profile.jlptLevel ?? 'N5'
 
   const [run, setRun] = useState(false)
   const [stepIndex, setStepIndex] = useState(0)
 
   useEffect(() => {
-    if (!user) return
+    if (!user || loading) return
 
-    const onboardingCompleted = localStorage.getItem(`onboarding_completed_${user.id}`)
-    const tourCompleted = localStorage.getItem(`tour_completed_${user.id}`)
+    const shouldRunTour = profile.jlptLevel !== null && profile.hasCompletedOnboarding === false
 
-    if (onboardingCompleted === 'true' && tourCompleted !== 'true') {
+    if (shouldRunTour) {
       const timer = setTimeout(() => {
         setRun(true)
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [user])
+
+    setRun(false)
+  }, [user, profile.jlptLevel, profile.hasCompletedOnboarding, loading])
 
   useEffect(() => {
     const handleNextStep = () => {
@@ -46,16 +51,16 @@ export function SystemTour() {
           if (location.pathname !== '/') navigate('/')
           break
         case 2:
-          if (location.pathname !== '/level/N5') navigate('/level/N5')
+          if (location.pathname !== `/level/${currentLevel}`) navigate(`/level/${currentLevel}`)
           break
         case 3:
         case 4:
         case 5:
         case 6:
         case 7:
-          if (!location.pathname.includes('/level/N5/grammar/')) {
+          if (!location.pathname.includes(`/level/${currentLevel}/grammar/`)) {
             // Se estiver na LevelPage, tenta clicar no primeiro link de gramática
-            if (location.pathname === '/level/N5') {
+            if (location.pathname === `/level/${currentLevel}`) {
               const timer = setTimeout(() => {
                 const firstGrammarLink = document.querySelector('a.study-item-card__link')
                 if (firstGrammarLink) {
@@ -65,7 +70,7 @@ export function SystemTour() {
               }, 600) // Aguarda o carregamento do banco
               return () => clearTimeout(timer)
             } else {
-              navigate('/level/N5')
+              navigate(`/level/${currentLevel}`)
             }
           }
           break
@@ -228,7 +233,7 @@ export function SystemTour() {
       setRun(false)
       setStepIndex(0)
       if (user) {
-        localStorage.setItem(`tour_completed_${user.id}`, 'true')
+        completeOnboarding()
       }
       navigate('/') // Retorna para a home ao finalizar/pular
     }

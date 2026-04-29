@@ -84,14 +84,21 @@ export function useAuth(): AuthContextType {
         throw signUpError
       }
 
-      // Create profile if username is provided and user was created
-      if (username && data.user) {
+      // Create profile if user was created
+      if (data.user) {
+        const profilePayload: Record<string, unknown> = {
+          id: data.user.id,
+          jlpt_level: null,
+          has_completed_onboarding: false,
+        }
+
+        if (username) {
+          profilePayload.username = username.trim()
+        }
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            id: data.user.id,
-            username: username.trim(),
-          })
+          .insert(profilePayload)
 
         if (profileError) {
           console.error('Error creating profile:', profileError)

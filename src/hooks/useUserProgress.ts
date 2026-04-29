@@ -149,6 +149,8 @@ export function useUserProgress() {
     currentStreak: 0,
     longestStreak: 0,
     lastActivityDate: null,
+    jlptLevel: null,
+    hasCompletedOnboarding: false,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -196,7 +198,7 @@ export function useUserProgress() {
 
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('current_streak,longest_streak,last_activity_date')
+          .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
           .eq('id', user.id)
           .maybeSingle()
 
@@ -230,6 +232,8 @@ export function useUserProgress() {
             currentStreak: profileData?.current_streak ?? 0,
             longestStreak: profileData?.longest_streak ?? 0,
             lastActivityDate: profileData?.last_activity_date ?? null,
+            jlptLevel: profileData?.jlpt_level ?? null,
+            hasCompletedOnboarding: profileData?.has_completed_onboarding ?? false,
           })
         }
       } catch (err) {
@@ -538,10 +542,22 @@ export function useUserProgress() {
 
         if (studyError) throw studyError
 
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ jlpt_level: null, has_completed_onboarding: false })
+          .eq('id', user.id)
+
+        if (profileError) throw profileError
+
         // Update local state optimistically
         setReviewQueue([])
         setMasteredItems([])
         setStudyingItems([])
+        setProfile((current) => ({
+          ...current,
+          jlptLevel: null,
+          hasCompletedOnboarding: false,
+        }))
       } catch (err) {
         console.error('Error resetting progress:', err)
         setError((err as Error).message ?? 'Erro ao resetar progresso')
@@ -558,13 +574,20 @@ export function useUserProgress() {
       try {
         setLoading(true)
         
-        // 1. Update profile JLPT level
+        // 1. Upsert profile JLPT level (handles missing profile rows too)
         const { error: profileError } = await supabase
           .from('profiles')
-          .update({ jlpt_level: level })
-          .eq('id', user.id)
+          .upsert(
+            { id: user.id, jlpt_level: level, has_completed_onboarding: false },
+            { onConflict: 'id' }
+          )
 
         if (profileError) throw profileError
+
+        setProfile((current) => ({
+          ...current,
+          jlptLevel: level,
+        }))
 
         // 2. Mark previous levels as mastered
         const levelsToMaster: import('../types').JLPTLevel[] = []
@@ -607,6 +630,27 @@ export function useUserProgress() {
     [user?.id]
   )
 
+  const completeOnboarding = useCallback(async () => {
+    if (!user?.id) return
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ has_completed_onboarding: true })
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      setProfile((current) => ({
+        ...current,
+        hasCompletedOnboarding: true,
+      }))
+    } catch (err) {
+      console.error('Error completing onboarding:', err)
+      setError((err as Error).message ?? 'Erro ao completar onboarding')
+    }
+  }, [user?.id])
+
   // Computed values
   const progress: UserProgress = {
     reviewQueue,
@@ -640,5 +684,6 @@ export function useUserProgress() {
     resetItemProgress,
     resetProgress,
     setLevel,
+    completeOnboarding,
   }
 }
