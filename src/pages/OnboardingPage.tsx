@@ -8,11 +8,11 @@ import { Check, ChevronRight, Sprout, BookOpen, MessageCircle, Mountain, Crown, 
 import './OnboardingPage.css'
 
 const LEVELS: { id: JLPTLevel; title: string; desc: string; icon: React.ReactNode }[] = [
-  { id: 'N5', title: 'N5', desc: 'Iniciante. Sei o básico do básico.', icon: <Sprout size={28} /> },
-  { id: 'N4', title: 'N4', desc: 'Básico. Entendo o japonês do dia a dia.', icon: <BookOpen size={28} /> },
-  { id: 'N3', title: 'N3', desc: 'Intermediário. Consigo me comunicar em diversas situações.', icon: <MessageCircle size={28} /> },
-  { id: 'N2', title: 'N2', desc: 'Avançado. Entendo japonês em situações variadas.', icon: <Mountain size={28} /> },
-  { id: 'N1', title: 'N1', desc: 'Fluente. Entendo japonês complexo em qualquer situação.', icon: <Crown size={28} /> },
+  { id: 'N5', title: 'N5', desc: 'Iniciante. Sei o básico do básico.', icon: <Sprout size={20} /> },
+  { id: 'N4', title: 'N4', desc: 'Básico. Entendo o japonês do dia a dia.', icon: <BookOpen size={20} /> },
+  { id: 'N3', title: 'N3', desc: 'Intermediário. Consigo me comunicar em diversas situações.', icon: <MessageCircle size={20} /> },
+  { id: 'N2', title: 'N2', desc: 'Avançado. Entendo japonês em situações variadas.', icon: <Mountain size={20} /> },
+  { id: 'N1', title: 'N1', desc: 'Fluente. Entendo japonês complexo em qualquer situação.', icon: <Crown size={20} /> },
 ]
 
 export function OnboardingPage() {
@@ -46,14 +46,14 @@ export function OnboardingPage() {
       <div className="onboarding-container">
         <header className="onboarding-header">
           <h1 className="onboarding-title">
-            <Sparkles className="title-icon" size={36} color="var(--accent)" />
+            <Sparkles className="title-icon" size={24} color="var(--accent)" />
             Bem-vindo ao Benkyou!
           </h1>
           <p className="onboarding-subtitle">
             Qual é o seu nível de japonês atual?
           </p>
           <div className="onboarding-info">
-            <Info size={24} className="info-icon" />
+            <Info size={16} className="info-icon" />
             <p>
               Níveis anteriores ao selecionado serão marcados como dominados automaticamente para que você não precise revisá-los.
             </p>
@@ -91,7 +91,7 @@ export function OnboardingPage() {
           onClick={handleConfirm}
         >
           {loading ? 'Salvando...' : 'Começar jornada'}
-          {!loading && <ChevronRight size={24} />}
+          {!loading && <ChevronRight size={18} />}
         </button>
       </div>
     </div>
