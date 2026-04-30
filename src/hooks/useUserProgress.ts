@@ -181,7 +181,6 @@ export function useUserProgress() {
           return
         }
 
-        console.log('📥 Loading progress for user:', user.id)
         setLoading(true)
         setError(null)
 
@@ -189,11 +188,6 @@ export function useUserProgress() {
           .from('user_review_queue')
           .select('*')
           .eq('user_id', user.id)
-
-        console.log('📊 Review queue response:', {
-          count: reviewData?.length ?? 0,
-          error: reviewError?.message,
-        })
 
         if (reviewError) {
           if (isRLSViolation(reviewError)) {
@@ -210,11 +204,6 @@ export function useUserProgress() {
           .select('*')
           .eq('user_id', user.id)
 
-        console.log('Study items response:', {
-          count: studyData?.length ?? 0,
-          error: studyError?.message,
-        })
-
         if (studyError) {
           if (isRLSViolation(studyError)) {
             console.error('RLS VIOLATION: user_study_items select failed', {
@@ -230,12 +219,6 @@ export function useUserProgress() {
           .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
           .eq('id', user.id)
           .maybeSingle()
-
-        console.log('👤 Profile response:', {
-          jlptLevel: profileData?.jlpt_level,
-          hasData: profileData !== null,
-          error: profileError?.message,
-        })
 
         if (profileError) {
           if (isRLSViolation(profileError)) {
@@ -313,8 +296,6 @@ export function useUserProgress() {
           ease_factor: item.easeFactor,
         }
 
-        console.log('Upserting review item:', { user_id: user.id, item_id: item.id, interval: item.interval })
-
         const { error } = await supabase.from('user_review_queue').upsert(payload, {
           onConflict: 'user_id,item_id',
         })
@@ -335,8 +316,6 @@ export function useUserProgress() {
           const nextQueue = current.filter((i) => i.id !== item.id)
           return [...nextQueue, item]
         })
-
-        console.log('Review item upserted successfully')
       } catch (err) {
         console.error('Error upserting review item:', err)
         setError((err as Error).message ?? 'Erro ao atualizar item de revisão')
@@ -443,8 +422,6 @@ export function useUserProgress() {
           status: 'studying' as const,
         }
 
-        console.log('Adding to studying:', { user_id: user.id, item_id: itemId })
-
         const { error } = await supabase.from('user_study_items').upsert(payload, {
           onConflict: 'user_id,item_id',
         })
@@ -464,8 +441,6 @@ export function useUserProgress() {
         setStudyingItems((current) =>
           Array.from(new Set([...current, itemId]))
         )
-
-        console.log('Item added to studying successfully')
       } catch (err) {
         console.error('Error adding to studying:', err)
         setError((err as Error).message ?? 'Erro ao adicionar para estudar')
@@ -728,8 +703,6 @@ export function useUserProgress() {
             hasCompletedOnboarding: profileData.has_completed_onboarding ?? false,
           })
         }
-
-        console.log('Level updated successfully:', { userId: user.id, level })
 
         const levelsToMaster: import('../types').JLPTLevel[] = []
         if (level === 'N4') levelsToMaster.push('N5')

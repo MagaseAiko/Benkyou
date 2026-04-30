@@ -28,9 +28,7 @@ export function OnboardingPage() {
 
     try {
       setLoading(true)
-      console.log('Setting level:', { level: selectedLevel, userId: user.id })
       await setLevel(selectedLevel)
-      console.log('Level set successfully, navigating to home...')
       showToast(`Nível ${selectedLevel} selecionado!`, 'success')
       navigate('/', { replace: true })
     } catch (error) {

@@ -215,8 +215,6 @@ async function seed() {
       await supabase.from("review_answers").insert(answers);
     }
   }
-
-  console.log("Seed finalizado 🚀");
 }
 
 export { seed };
