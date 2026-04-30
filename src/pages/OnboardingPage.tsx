@@ -28,13 +28,13 @@ export function OnboardingPage() {
 
     try {
       setLoading(true)
-      console.log('📝 Setting level:', { level: selectedLevel, userId: user.id })
+      console.log('Setting level:', { level: selectedLevel, userId: user.id })
       await setLevel(selectedLevel)
-      console.log('✅ Level set successfully, navigating to home...')
+      console.log('Level set successfully, navigating to home...')
       showToast(`Nível ${selectedLevel} selecionado!`, 'success')
       navigate('/', { replace: true })
     } catch (error) {
-      console.error('❌ Error setting level:', error)
+      console.error('Error setting level:', error)
       const message = error instanceof Error ? error.message : 'Erro ao definir nível'
       showToast(message, 'error')
       setLoading(false)

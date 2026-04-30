@@ -264,7 +264,7 @@ export function AboutPage() {
 
       {/* Footer */}
       <footer className="about-page__footer">
-        <p>Versão 1.0.0 | Feito com ❤️ para estudantes de japonês</p>
+        <p>Versão 1.0.0 | Feito com 💜 para estudantes de japonês</p>
       </footer>
     </main>
   )

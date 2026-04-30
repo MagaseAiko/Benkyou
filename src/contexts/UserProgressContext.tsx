@@ -34,7 +34,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Load profile from DB
   useEffect(() => {
     if (!user?.id) {
       setLoading(false)
@@ -53,7 +52,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
         if (profileError) {
           if (isRLSViolation(profileError)) {
-            console.error('❌ RLS VIOLATION: profiles select failed', {
+            console.error('RLS VIOLATION: profiles select failed', {
               userId: user.id,
               code: profileError.code,
             })
@@ -81,7 +80,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   const setLevel = useCallback(async (level: string) => {
     if (!user?.id) {
-      console.warn('⚠️ setLevel: user.id is missing')
+      console.warn('setLevel: user.id is missing')
       return
     }
 
@@ -100,7 +99,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
       if (error) {
         if (isRLSViolation(error)) {
-          console.error('❌ RLS VIOLATION: profiles upsert failed during setLevel', {
+          console.error('RLS VIOLATION: profiles upsert failed during setLevel', {
             userId: user.id,
             level,
             code: error.code,
@@ -109,7 +108,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         throw error
       }
 
-      // Reload to get updated data
       const { data, error: selectError } = await supabase
         .from('profiles')
         .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
@@ -126,7 +124,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         hasCompletedOnboarding: data.has_completed_onboarding ?? false,
       })
 
-      // Mark previous levels as mastered
       const levelsToMaster: string[] = []
       if (level === 'N4') levelsToMaster.push('N5')
       if (level === 'N3') levelsToMaster.push('N5', 'N4')
@@ -151,20 +148,19 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
             if (insertError) {
               if (isRLSViolation(insertError)) {
-                console.error('❌ RLS VIOLATION: user_study_items bulk upsert failed', {
+                console.error('RLS VIOLATION: user_study_items bulk upsert failed', {
                   userId: user.id,
                   code: insertError.code,
                 })
               }
-              console.warn('⚠️ Non-fatal error upserting mastered items', insertError)
+              console.warn('Non-fatal error upserting mastered items', insertError)
             }
           }
         } catch (err) {
-          console.warn('⚠️ Non-fatal error while setting mastered levels', err)
+          console.warn('Non-fatal error while setting mastered levels', err)
         }
       }
     } catch (err) {
-      // Revert optimistic update
       setProfile(current => ({ ...current, jlptLevel: null, hasCompletedOnboarding: false }))
       setError((err as Error).message ?? 'Erro ao definir nível')
       throw err

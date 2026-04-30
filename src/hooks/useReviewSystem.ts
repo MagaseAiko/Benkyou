@@ -80,7 +80,6 @@ export function useReviewSystem() {
       const interval = clampIntervalDays(1)
       const now = Date.now()
 
-      // Permite revisão imediata após o usuário marcar "Revisar".
       const nextReview = now
 
       upsertReviewItem({

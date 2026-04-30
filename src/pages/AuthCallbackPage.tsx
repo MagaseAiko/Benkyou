@@ -23,13 +23,11 @@ export function AuthCallbackPage() {
         }
 
         if (data.session) {
-          // User is authenticated - sign out and redirect to login
           await supabase.auth.signOut()
           setStatus('success')
           setMessage('Email alterado com sucesso! Faça login novamente com seu novo email.')
           setTimeout(() => navigate('/login'), 3000)
         } else {
-          // No session
           setStatus('error')
           setMessage('Sessão não encontrada. Redirecionando...')
           setTimeout(() => navigate('/login'), 3000)

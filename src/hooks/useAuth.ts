@@ -25,7 +25,6 @@ export function useAuth(): AuthContextType {
         setLoading(true)
         setError(null)
 
-        // Check for existing session
         const {
           data: { session },
           error: sessionError,
@@ -52,7 +51,6 @@ export function useAuth(): AuthContextType {
 
     initializeAuth()
 
-    // Subscribe to auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -85,11 +83,9 @@ export function useAuth(): AuthContextType {
         throw signUpError
       }
 
-      // 🔐 SECURE: Only create profile if user was created successfully
-      // User ID comes from Supabase auth response (trusted source)
       if (data.user?.id) {
         const profilePayload = {
-          id: data.user.id, // ✅ Safe: from auth response
+          id: data.user.id,
           jlpt_level: null,
           has_completed_onboarding: false,
           username: username?.trim() || undefined,
@@ -100,16 +96,13 @@ export function useAuth(): AuthContextType {
           .insert(profilePayload)
 
         if (profileError) {
-          console.error('⚠️ Profile creation warning:', profileError)
-          // 🚨 RLS violation = profile already exists or user_id mismatch
+          console.error('Profile creation warning:', profileError)
           if (isRLSViolation(profileError)) {
-            console.error('❌ RLS VIOLATION in profile insert:', {
+            console.error('RLS VIOLATION in profile insert:', {
               userId: data.user.id,
               code: profileError.code,
             })
           }
-          // Don't throw - user account was created successfully,
-          // profile creation might be handled differently
         }
       }
     } catch (err) {

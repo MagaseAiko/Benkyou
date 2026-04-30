@@ -63,7 +63,6 @@ export function useStudyItem(itemId: string) {
       return
     }
 
-    // First try local data (vocabulary)
     const localItem = findStudyItemById(itemId)
     if (localItem) {
       setItem(localItem)
@@ -71,7 +70,6 @@ export function useStudyItem(itemId: string) {
       return
     }
 
-    // If not found locally, try Supabase (grammar)
     getGrammarById(itemId)
       .then((grammarItem) => {
         if (!isMounted) return

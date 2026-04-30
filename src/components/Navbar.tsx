@@ -36,7 +36,6 @@ export function Navbar() {
     setIsMenuOpen(false)
   }
 
-  // Lock body scroll while mobile menu is open
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -94,7 +93,6 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Hamburger Button */}
           <button
             className={`navbar__menu-toggle ${isMenuOpen ? 'navbar__menu-toggle--open' : ''}`}
             onClick={toggleMenu}
@@ -111,11 +109,6 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/*
-        Portal: renders the mobile menu directly on document.body.
-        This completely escapes the `backdrop-filter` containing block on .navbar,
-        which was preventing `position: fixed; inset: 0` from covering the full viewport.
-      */}
       {createPortal(
         <div className={`navbar__mobile-menu ${isMenuOpen ? 'navbar__mobile-menu--open' : ''}`}>
           <div className="navbar__mobile-links">

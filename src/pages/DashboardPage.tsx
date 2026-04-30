@@ -35,7 +35,6 @@ export function DashboardPage() {
   const studiedPercent = totalItems ? Math.round((studiedCount / totalItems) * 100) : 0
 
   const reviewDistribution = useMemo(() => {
-    // eslint-disable-next-line react-hooks/purity
     const now = Date.now()
     const endOfToday = new Date()
     endOfToday.setHours(23, 59, 59, 999)
@@ -108,7 +107,6 @@ export function DashboardPage() {
     </svg>
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (

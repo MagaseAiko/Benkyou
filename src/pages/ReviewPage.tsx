@@ -240,7 +240,6 @@ export function ReviewPage() {
   const renderInlineSentence = () => {
     if (!completionSentence) return null
     
-    // Split by at least 2 underscores, as it's typically ____
     const parts = completionSentence.sentence.split(/_{2,}/)
     
     return (
@@ -255,7 +254,6 @@ export function ReviewPage() {
                 type="text"
                 value={completionAnswer}
                 onChange={(e) => {
-                  // Converte o texto digitado (romaji) para kana automaticamente
                   const kanaText = wanakana.toKana(e.target.value, { IMEMode: true })
                   setCompletionAnswer(kanaText)
                 }}
@@ -294,7 +292,7 @@ export function ReviewPage() {
             </header>
             <div className="flashcard__content" style={{ padding: '2rem 1.5rem' }}>
               
-              {/* Hints Buttons */}
+              {/* Botões de Dica */}
               <div className="review-hints">
                 <button
                   className={`hint-button ${showTranslationHint ? 'active' : ''}`}
@@ -312,7 +310,7 @@ export function ReviewPage() {
                 </button>
               </div>
 
-              {/* Hints Content */}
+              {/* Dica de Tradução */}
               {showTranslationHint && completionSentence.translation && (
                 <div className="hint-content">
                   <span>Tradução da Frase</span>
@@ -326,10 +324,10 @@ export function ReviewPage() {
                 </div>
               )}
 
-              {/* Inline Sentence Input */}
+              {/* Input de Frase Inline */}
               {renderInlineSentence()}
 
-              {/* Verify Button (only if not verified) */}
+              {/* Botão de Verificação */}
               {!showCompletionResult && (
                 <div className="review-verify-action">
                   <button
@@ -343,7 +341,7 @@ export function ReviewPage() {
                 </div>
               )}
 
-              {/* Simple Dynamic Feedback */}
+              {/* Feedback Simples */}
               {showCompletionResult && (
                 <div className="review-feedback-simple">
                   <div className={`status-text ${completionResultStatus || 'wrong'}`}>
@@ -401,7 +399,7 @@ export function ReviewPage() {
         </section>
       )}
 
-      {/* Grammar Modal */}
+      {/* Modal de Gramática */}
       {showGrammarModal && current && item && (
         <div className="grammar-modal-overlay" onClick={() => setShowGrammarModal(false)}>
           <div className="grammar-modal-content" onClick={(e) => e.stopPropagation()}>

@@ -40,7 +40,6 @@ export function SystemTour() {
     return () => window.removeEventListener('tour-next-step', handleNextStep)
   }, [])
 
-  // Lógica de roteamento baseada no stepIndex
   useEffect(() => {
     if (!run) return
 
@@ -59,7 +58,6 @@ export function SystemTour() {
         case 6:
         case 7:
           if (!location.pathname.includes(`/level/${currentLevel}/grammar/`)) {
-            // Se estiver na LevelPage, tenta clicar no primeiro link de gramática
             if (location.pathname === `/level/${currentLevel}`) {
               const timer = setTimeout(() => {
                 const firstGrammarLink = document.querySelector('a.study-item-card__link')
@@ -67,7 +65,7 @@ export function SystemTour() {
                   const href = firstGrammarLink.getAttribute('href')
                   if (href) navigate(href)
                 }
-              }, 600) // Aguarda o carregamento do banco
+              }, 600) 
               return () => clearTimeout(timer)
             } else {
               navigate(`/level/${currentLevel}`)
@@ -180,15 +178,14 @@ export function SystemTour() {
       const element = document.querySelector(targetStr)
       if (element) {
         const isMobile = window.innerWidth < 768
-        const headerHeight = 80 // Aproximado da navbar
-        const tooltipHeight = isMobile ? 300 : 200 // Estimativa
+        const headerHeight = 80
+        const tooltipHeight = isMobile ? 300 : 200 
         const padding = 20
         
         const elementRect = element.getBoundingClientRect()
         const scrollTop = window.scrollY
         const elementTop = elementRect.top + scrollTop
         
-        // Calcula a posição ideal para scroll
         const targetScrollPosition = elementTop - headerHeight - tooltipHeight - padding + offset
         
         window.scrollTo({
@@ -196,7 +193,6 @@ export function SystemTour() {
           behavior: 'smooth'
         })
 
-        // Fallback para scrollIntoView se o elemento estiver muito pequeno
         if (elementRect.height < 50 && elementRect.top < 100) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
@@ -217,14 +213,11 @@ export function SystemTour() {
       if (index === 8 && action === ACTIONS.NEXT) {
         const reviewActionsExists = document.querySelector('.review-actions')
         if (!reviewActionsExists) {
-          // O usuário clicou em Próximo no guia em vez de Verificar.
-          // Vamos forçar a verificação para revelar as ações e depois avançar.
           window.dispatchEvent(new Event('tour-force-verify'))
           return
         }
       }
       
-      // Atualiza o índice baseado na ação (next/prev)
       const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1)
       setStepIndex(nextStepIndex)
     } else if (type === EVENTS.TARGET_NOT_FOUND) {
@@ -235,16 +228,16 @@ export function SystemTour() {
       if (user) {
         completeOnboarding()
       }
-      navigate('/') // Retorna para a home ao finalizar/pular
+      navigate('/')
     }
   }
 
   const getResponsiveTooltipWidth = () => {
     if (typeof window === 'undefined') return 400
     const width = window.innerWidth
-    if (width < 480) return width - 40 // Mobile pequeno
-    if (width < 768) return width - 60 // Mobile médio
-    return 400 // Desktop
+    if (width < 480) return width - 40 
+    if (width < 768) return width - 60 
+    return 400
   }
 
   const getResponsivePlacement = (placement: any): any => {
@@ -254,7 +247,6 @@ export function SystemTour() {
     return placement
   }
 
-  // Cria steps responsivos
   const responsiveSteps: Step[] = steps.map((step) => ({
     ...step,
     placement: getResponsivePlacement(step.placement)

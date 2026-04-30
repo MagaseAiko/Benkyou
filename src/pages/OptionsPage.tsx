@@ -26,7 +26,6 @@ export function OptionsPage() {
   const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState<string>('')
 
-  // Fetch username on component mount
   useEffect(() => {
     const fetchUsername = async () => {
       if (!user?.id) return
@@ -73,7 +72,6 @@ export function OptionsPage() {
     }
   }, [newEmail, showToast])
 
-  // Username change
   const [newUsername, setNewUsername] = useState('')
   const handleChangeUsername = useCallback(async () => {
     try {
@@ -102,7 +100,6 @@ export function OptionsPage() {
       setNewUsername('')
       setAccountSection(null)
 
-      // Refresh username
       const { data } = await supabase
         .from('profiles')
         .select('username')
@@ -179,8 +176,6 @@ export function OptionsPage() {
       await resetProgress()
       showToast('Progresso foi resetado com sucesso.', 'success')
       setIsResetModalOpen(false)
-      // The ProtectedRoute or App will automatically handle the redirect since local storage is cleared
-      // But we can also use window.location to force the reload and re-check
       window.location.href = '/onboarding'
     } catch (err) {
       showToast((err as Error).message ?? 'Erro ao resetar progresso', 'error')

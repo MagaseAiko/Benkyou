@@ -49,22 +49,6 @@ export function LevelPage() {
           </ul>
         )}
       </section>
-
-      
-      {
-      /* Apagar posteriormente se realmente não for necessário */
-      /* <section className="section">
-        <h2>Vocabulário</h2>
-        {vocabulary.length === 0 ? (
-          <p className="empty-state">Ainda não há itens de vocabulário neste nível.</p>
-        ) : (
-          <ul className="study-item-list">
-            {vocabulary.map((item) => (
-              <StudyItemCard key={item.id} item={item} />
-            ))}
-          </ul>
-        )}
-      </section> */}
     </main>
   )
 }

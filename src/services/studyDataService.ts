@@ -1,14 +1,6 @@
 import type { JLPTLevel, StudyItem, StudyType, ExampleSentence, ReviewSentence, GrammarItem } from '../types'
 import { supabase } from '../utils/supabase'
 
-// const vocabularyData: Record<JLPTLevel, StudyItem[]> = {
-//   N5: N5Vocabulary as unknown as StudyItem[],
-//   N4: N4Vocabulary as unknown as StudyItem[],
-//   N3: N3Vocabulary as unknown as StudyItem[],
-//   N2: N2Vocabulary as unknown as StudyItem[],
-//   N1: N1Vocabulary as unknown as StudyItem[],
-// }
-
 const vocabularyData: Record<JLPTLevel, StudyItem[]> = {
   N5: [],
   N4: [],
