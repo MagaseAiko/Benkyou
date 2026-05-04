@@ -7,99 +7,6 @@ import { useAuth } from './useAuth'
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const MAX_INTERVAL_DAYS = 365 * 5
 
-function getUTCDateString(date: Date = new Date()) {
-  return date.toISOString().slice(0, 10)
-}
-
-function getYesterdayUTCDateString() {
-  const yesterday = new Date(Date.now() - MS_PER_DAY)
-  return getUTCDateString(yesterday)
-}
-
-async function trackDailyActivityForUser(userId: string) {
-  const today = getUTCDateString()
-  const yesterday = getYesterdayUTCDateString()
-
-  const { error: activityError } = await supabase
-    .from('user_daily_activity')
-    .upsert({
-      user_id: userId,
-      activity_date: today,
-    })
-
-  if (activityError) {
-    if (isRLSViolation(activityError)) {
-      console.error('RLS VIOLATION: user_daily_activity upsert failed', {
-        userId,
-        code: activityError.code,
-      })
-    }
-    throw activityError
-  }
-
-  const { data: profileRow, error: profileError } = await supabase
-    .from('profiles')
-    .select('current_streak,longest_streak,last_activity_date,jlpt_level,has_completed_onboarding')
-    .eq('id', userId)
-    .maybeSingle()
-
-  if (profileError) {
-    if (isRLSViolation(profileError)) {
-      console.error('RLS VIOLATION: profiles select failed', {
-        userId,
-        code: profileError.code,
-      })
-    }
-    throw profileError
-  }
-
-  const lastActivityDate = profileRow?.last_activity_date ?? null
-  const currentStreak =
-    lastActivityDate === today
-      ? profileRow?.current_streak ?? 0
-      : lastActivityDate === yesterday
-      ? (profileRow?.current_streak ?? 0) + 1
-      : 1
-  const longestStreak = Math.max(profileRow?.longest_streak ?? 0, currentStreak)
-
-  if (lastActivityDate === today && profileRow) {
-    return {
-      currentStreak: profileRow.current_streak ?? 0,
-      longestStreak: profileRow.longest_streak ?? 0,
-      lastActivityDate: profileRow.last_activity_date,
-      jlptLevel: profileRow.jlpt_level ?? null,
-      hasCompletedOnboarding: profileRow.has_completed_onboarding ?? false,
-    }
-  }
-
-  const { error: updateError } = await supabase
-    .from('profiles')
-    .upsert({
-      id: userId,
-      current_streak: currentStreak,
-      longest_streak: longestStreak,
-      last_activity_date: today,
-    })
-
-  if (updateError) {
-    if (isRLSViolation(updateError)) {
-      console.error('RLS VIOLATION: profiles upsert failed', {
-        userId,
-        code: updateError.code,
-      })
-    }
-    throw updateError
-  }
-
-  return {
-    currentStreak,
-    longestStreak,
-    lastActivityDate: today,
-    jlptLevel: profileRow?.jlpt_level ?? null,
-    hasCompletedOnboarding: profileRow?.has_completed_onboarding ?? false,
-  }
-}
-
 export type ReviewQuality = 'forgot' | 'continue' | 'remembered'
 
 type ReviewQueueRow = {
@@ -390,6 +297,36 @@ export function useUserProgress() {
           throw error
         }
 
+        const { error: streakError } = await supabase.rpc('update_streak', {
+          user_id: user.id,
+        })
+
+        if (streakError) {
+          if (isRLSViolation(streakError)) {
+            console.error('RLS VIOLATION: update_streak rpc failed', {
+              userId: user.id,
+              code: streakError.code,
+            })
+          }
+          throw streakError
+        }
+
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (profileError) {
+          if (isRLSViolation(profileError)) {
+            console.error('RLS VIOLATION: profiles select failed', {
+              userId: user.id,
+              code: profileError.code,
+            })
+          }
+          throw profileError
+        }
+
         setMasteredItems((current) =>
           Array.from(new Set([...current, itemId]))
         )
@@ -397,8 +334,13 @@ export function useUserProgress() {
           current.filter((id) => id !== itemId)
         )
 
-        const updatedProfile = await trackDailyActivityForUser(user.id)
-        setProfile(updatedProfile)
+        setProfile({
+          currentStreak: profileData?.current_streak ?? 0,
+          longestStreak: profileData?.longest_streak ?? 0,
+          lastActivityDate: profileData?.last_activity_date ?? null,
+          jlptLevel: profileData?.jlpt_level ?? null,
+          hasCompletedOnboarding: profileData?.has_completed_onboarding ?? false,
+        })
       } catch (err) {
         console.error('Error marking mastered:', err)
         setError((err as Error).message ?? 'Erro ao marcar como dominado')
@@ -507,8 +449,43 @@ export function useUserProgress() {
           })
           await addToStudying(itemId)
 
-          const updatedProfile = await trackDailyActivityForUser(user.id)
-          setProfile(updatedProfile)
+          const { error: streakError } = await supabase.rpc('update_streak', {
+            user_id: user.id,
+          })
+
+          if (streakError) {
+            if (isRLSViolation(streakError)) {
+              console.error('RLS VIOLATION: update_streak rpc failed', {
+                userId: user.id,
+                code: streakError.code,
+              })
+            }
+            throw streakError
+          }
+
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (profileError) {
+            if (isRLSViolation(profileError)) {
+              console.error('RLS VIOLATION: profiles select failed', {
+                userId: user.id,
+                code: profileError.code,
+              })
+            }
+            throw profileError
+          }
+
+          setProfile({
+            currentStreak: profileData?.current_streak ?? 0,
+            longestStreak: profileData?.longest_streak ?? 0,
+            lastActivityDate: profileData?.last_activity_date ?? null,
+            jlptLevel: profileData?.jlpt_level ?? null,
+            hasCompletedOnboarding: profileData?.has_completed_onboarding ?? false,
+          })
         }
       } catch (err) {
         console.error('Error updating review for quality:', err)
