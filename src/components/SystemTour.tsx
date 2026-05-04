@@ -98,7 +98,7 @@ export function SystemTour() {
   const steps: Step[] = [
     { // 0
       target: 'body',
-      content: 'Bem-vindo ao Benkyou! Vamos fazer um tour guiado pelas funcionalidades do sistema. Esta é a sua jornada de Onboarding!',
+      content: 'Bem-vindo ao Benkyou! Vamos fazer um tour guiado pelas funcionalidades do sistema.',
       placement: 'center',
     },
     { // 1
