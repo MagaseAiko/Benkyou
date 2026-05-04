@@ -258,6 +258,7 @@ export function SystemTour() {
       run={run}
       stepIndex={stepIndex}
       continuous
+      spotlightClicks
       onEvent={handleJoyrideCallback}
       options={{
         primaryColor: 'var(--accent)',
@@ -265,6 +266,7 @@ export function SystemTour() {
         backgroundColor: 'var(--surface)',
         arrowColor: 'var(--surface)',
         overlayColor: 'rgba(0, 0, 0, 0.75)',
+        overlayClickAction: false,
         zIndex: 10000,
         buttons: ['back', 'close', 'primary', 'skip'],
       }}
