@@ -3,7 +3,7 @@ import type { ReviewItem, UserProgress, UserProfile } from '../types'
 import { supabase } from '../utils/supabase'
 import { isRLSViolation } from '../utils/auth-helpers'
 import { useAuth } from './useAuth'
-import { clearGrammarCache } from '../services/studyDataService'
+import { clearGrammarCache, getAllStudyItems } from '../services/studyDataService'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const MAX_INTERVAL_DAYS = 365 * 5
@@ -692,7 +692,6 @@ export function useUserProgress() {
 
         if (levelsToMaster.length > 0) {
           try {
-            const { getAllStudyItems } = await import('../services/studyDataService')
             const allItems = await getAllStudyItems()
 
             const itemsToMaster = allItems.filter((item) => levelsToMaster.includes(item.level))

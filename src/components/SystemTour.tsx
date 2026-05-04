@@ -258,7 +258,6 @@ export function SystemTour() {
       run={run}
       stepIndex={stepIndex}
       continuous
-      spotlightClicks
       onEvent={handleJoyrideCallback}
       options={{
         primaryColor: 'var(--accent)',
