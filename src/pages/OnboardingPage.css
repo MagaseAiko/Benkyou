@@ -3,7 +3,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 50% -20%, rgba(143, 123, 255, 0.15) 0%, var(--page-bg) 50%);
   padding: 1rem 0.75rem;
 }
 
