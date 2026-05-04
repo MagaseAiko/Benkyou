@@ -1,70 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { StudyItem } from '../types'
+import { buildFuriganaMap, isKanji } from '../utils/furigana'
 
 type Props = {
   item: StudyItem
   onQuality: (quality: 'forgot' | 'continue' | 'remembered') => void
-}
-
-function isKanji(char: string) {
-  const code = char.codePointAt(0) ?? 0
-  return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf)
-}
-
-function isKana(char: string) {
-  const code = char.codePointAt(0) ?? 0
-  return (
-    (code >= 0x3040 && code <= 0x309f) || // hiragana
-    (code >= 0x30a0 && code <= 0x30ff) // katakana
-  )
-}
-
-function buildFuriganaMap(japanese: string, reading: string) {
-  const result: Array<{ char: string; reading: string | null }> = []
-  let rIdx = 0
-
-  const nextKanaIndex = (start: number) => {
-    for (let i = start; i < japanese.length; i += 1) {
-      if (isKana(japanese[i])) return i
-    }
-    return -1
-  }
-
-  for (let i = 0; i < japanese.length; i += 1) {
-    const char = japanese[i]
-
-    if (isKana(char) || /[。、！？]/.test(char)) {
-      const readChar = reading[rIdx] ?? ''
-      result.push({ char, reading: readChar })
-      rIdx += 1
-      continue
-    }
-
-    if (isKanji(char)) {
-      const nextKanaPos = nextKanaIndex(i + 1)
-      if (nextKanaPos === -1) {
-        const rest = reading.slice(rIdx) || ''
-        result.push({ char, reading: rest })
-        rIdx = reading.length
-      } else {
-        const nextKanaChar = japanese[nextKanaPos]
-        let boundary = rIdx
-        while (boundary < reading.length && reading[boundary] !== nextKanaChar) {
-          boundary += 1
-        }
-        const furigana = reading.slice(rIdx, boundary) || ''
-        result.push({ char, reading: furigana })
-        rIdx = boundary
-      }
-      continue
-    }
-
-    const readChar = reading[rIdx] ?? ''
-    result.push({ char, reading: readChar })
-    rIdx += 1
-  }
-
-  return result
 }
 
 function FuriganaText({ japanese, reading }: { japanese: string; reading?: string }) {
