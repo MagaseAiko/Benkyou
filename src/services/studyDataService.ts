@@ -98,10 +98,14 @@ export async function getAllGrammar(): Promise<GrammarItem[]> {
   return grammarCache
 }
 
+export function clearGrammarCache() {
+  grammarCache = null
+}
+
 export async function getGrammarById(id: string): Promise<GrammarItem | null> {
   if (grammarCache) {
     const cachedItem = grammarCache.find((item) => item.id === id)
-    if (cachedItem) {
+    if (cachedItem && cachedItem.review_sentences && cachedItem.review_sentences.length > 0) {
       return cachedItem
     }
   }

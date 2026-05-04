@@ -3,6 +3,7 @@ import type { ReviewItem, UserProgress, UserProfile } from '../types'
 import { supabase } from '../utils/supabase'
 import { isRLSViolation } from '../utils/auth-helpers'
 import { useAuth } from './useAuth'
+import { clearGrammarCache } from '../services/studyDataService'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const MAX_INTERVAL_DAYS = 365 * 5
@@ -223,6 +224,8 @@ export function useUserProgress() {
           const nextQueue = current.filter((i) => i.id !== item.id)
           return [...nextQueue, item]
         })
+
+        clearGrammarCache()
       } catch (err) {
         console.error('Error upserting review item:', err)
         setError((err as Error).message ?? 'Erro ao atualizar item de revisão')
