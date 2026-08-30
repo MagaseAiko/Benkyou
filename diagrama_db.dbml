@@ -1,0 +1,200 @@
+// ============================================================
+// SUPABASE DATABASE SCHEMA
+// ============================================================
+// Application tables + Supabase Auth users
+//
+// Generated from the PostgreSQL schema provided.
+//
+// IMPORTANT:
+// auth.users contains sensitive authentication fields.
+// Password hashes, tokens and similar fields are intentionally
+// omitted because they are irrelevant to the ER diagram.
+// ============================================================
+
+
+// ============================================================
+// SUPABASE AUTH
+// ============================================================
+
+Table "auth.users" {
+  id uuid [pk]
+  instance_id uuid
+  aud varchar
+  role varchar
+  email varchar
+  email_confirmed_at timestamptz
+  invited_at timestamptz
+  confirmation_sent_at timestamptz
+  recovery_sent_at timestamptz
+  email_change_sent_at timestamptz
+  last_sign_in_at timestamptz
+  raw_app_meta_data jsonb
+  raw_user_meta_data jsonb
+  is_super_admin boolean
+  created_at timestamptz
+  updated_at timestamptz
+  phone text
+  phone_confirmed_at timestamptz
+  confirmed_at timestamptz
+  email_change_confirm_status smallint
+  banned_until timestamptz
+  is_sso_user boolean
+  deleted_at timestamptz
+  is_anonymous boolean
+
+  Note: 'Managed by Supabase Auth'
+}
+
+
+// ============================================================
+// GRAMMAR
+// ============================================================
+
+Table grammar {
+  id text [pk]
+  type text
+  level text
+  japanese text
+  reading text
+  translation text
+  explanation text
+  notes text
+  created_at timestamp
+  structure text
+  base_form text
+  match_regex text
+  tokens array
+  variations array
+}
+
+
+// ============================================================
+// EXAMPLES
+// ============================================================
+
+Table examples {
+  id uuid [pk]
+  grammar_id text
+  japanese text
+  reading text
+  translation text
+}
+
+
+// ============================================================
+// REVIEW SENTENCES
+// ============================================================
+
+Table review_sentences {
+  id uuid [pk]
+  grammar_id text
+  sentence text
+  translation text
+}
+
+
+// ============================================================
+// REVIEW ANSWERS
+// ============================================================
+
+Table review_answers {
+  id uuid [pk]
+  review_sentence_id uuid
+  answer text
+}
+
+
+// ============================================================
+// USER PROFILES
+// ============================================================
+
+Table profiles {
+  id uuid [pk]
+  username text
+  jlpt_level text
+  created_at timestamp
+  updated_at timestamp
+  current_streak integer
+  longest_streak integer
+  last_activity_date date
+  has_completed_onboarding boolean
+}
+
+
+// ============================================================
+// USER DAILY ACTIVITY
+// ============================================================
+
+Table user_daily_activity {
+  id uuid [pk]
+  user_id uuid
+  activity_date date
+  created_at timestamp
+}
+
+
+// ============================================================
+// USER REVIEW QUEUE
+// ============================================================
+
+Table user_review_queue {
+  id uuid [pk]
+  user_id uuid
+  item_id text
+  next_review timestamp
+  interval integer
+  ease_factor numeric
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+// ============================================================
+// USER STUDY ITEMS
+// ============================================================
+
+Table user_study_items {
+  id uuid [pk]
+  user_id uuid
+  item_id text
+  status text
+  created_at timestamp
+  updated_at timestamp
+}
+
+
+// ============================================================
+// FOREIGN KEY RELATIONSHIPS
+// ============================================================
+
+
+// ----------------------------
+// User relationships
+// ----------------------------
+
+// One profile belongs to exactly one auth user.
+// profiles.id is both PK and FK.
+Ref: profiles.id - "auth.users".id
+
+// A user can have many daily activity records.
+Ref: user_daily_activity.user_id > "auth.users".id
+
+// A user can have many items in the review queue.
+Ref: user_review_queue.user_id > "auth.users".id
+
+// A user can have many study items.
+Ref: user_study_items.user_id > "auth.users".id
+
+
+// ----------------------------
+// Grammar relationships
+// ----------------------------
+
+// A grammar item can have many examples.
+Ref: examples.grammar_id > grammar.id
+
+// A grammar item can have many review sentences.
+Ref: review_sentences.grammar_id > grammar.id
+
+// A review sentence can have many answers.
+Ref: review_answers.review_sentence_id > review_sentences.id
