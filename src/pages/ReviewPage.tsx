@@ -311,7 +311,7 @@ export function ReviewPage() {
                         <button className="button" type="button" onClick={() => handleQuality('continue')}>
                           Continuar estudando
                         </button>
-                        <button className="button button--primary" type="button" onClick={() => handleQuality('remembered')} autoFocus>
+                        <button className="button button--primary" type="button" onClick={() => handleQuality('remembered')}>
                           Decorei
                         </button>
                       </>
@@ -320,7 +320,7 @@ export function ReviewPage() {
                         <button className="button" type="button" onClick={() => handleQuality('forgot')}>
                           Estudar de novo
                         </button>
-                        <button className="button button--primary" type="button" onClick={() => handleQuality('continue')} autoFocus>
+                        <button className="button button--primary" type="button" onClick={() => handleQuality('continue')}>
                           Avançar
                         </button>
                       </>

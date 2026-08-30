@@ -1224,11 +1224,13 @@
   flex-shrink: 0;
   transition: all 0.2s ease;
   cursor: pointer;
-  transform-origin: 0px 10px;
   border-radius: 5px;
-  margin: -1px 10px 0px 0px;
-  padding: 0px;
+  margin: 0 10px 0 0;
+  padding: 0;
   box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .study-item-card__header input:checked ~ .checkmark {
@@ -1239,21 +1241,18 @@
 .checkmark:after {
   content: "";
   position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
   display: none;
 }
 
 .study-item-card__header input:checked ~ .checkmark:after {
   display: block;
-}
-
-.study-item-card__header .checkmark:after {
-  left: 0.45em;
-  top: 0.25em;
-  width: 0.25em;
-  height: 0.5em;
-  border: solid white;
-  border-width: 0 0.15em 0.15em 0;
-  transform: rotate(45deg);
 }
 
 .study-item-card__id {
