@@ -140,23 +140,25 @@
 .review-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 2rem;
 }
 
 .review-actions button {
-  min-width: 120px;
+  min-width: 0;
 }
 
 .review-verify-action {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 2rem;
 }
 
 .review-verify-action button {
-  min-width: 150px;
+  min-width: 0;
 }
 
 /* Modal styles for Grammar Info */
