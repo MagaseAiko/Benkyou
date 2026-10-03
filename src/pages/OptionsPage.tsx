@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProgress } from '../hooks/useUserProgress'
 import { useToast } from '../hooks/useToast'
@@ -17,6 +18,7 @@ import {
 import './OptionsPage.css'
 
 export function OptionsPage() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { resetProgress } = useUserProgress()
   const { message, toastType, showToast, closeToast } = useToast()
@@ -176,13 +178,13 @@ export function OptionsPage() {
       await resetProgress()
       showToast('Progresso foi resetado com sucesso.', 'success')
       setIsResetModalOpen(false)
-      window.location.href = '/onboarding'
+      navigate('/onboarding', { replace: true })
     } catch (err) {
       showToast((err as Error).message ?? 'Erro ao resetar progresso', 'error')
     } finally {
       setLoading(false)
     }
-  }, [resetProgress, showToast])
+  }, [navigate, resetProgress, showToast])
 
   const handleCancelReset = useCallback(() => {
     setIsResetModalOpen(false)
