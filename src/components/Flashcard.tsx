@@ -57,7 +57,7 @@ export function Flashcard({ item, onQuality }: Props) {
         {showAnswer ? (
           <div className="flashcard__back">
             <p className="flashcard__translation">{item.translation}</p>
-            <p className="flashcard__explanation">{item.explanation}</p>
+            <p className="flashcard__explanation preserved-line-breaks">{item.explanation}</p>
             {item.examples.length > 0 && (
               <div className="flashcard__examples">
                 <h3>Exemplos</h3>

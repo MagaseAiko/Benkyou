@@ -67,6 +67,11 @@
   transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
+.preserved-line-breaks {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
 .section:hover {
   box-shadow: var(--shadow-md);
   border-color: var(--border);

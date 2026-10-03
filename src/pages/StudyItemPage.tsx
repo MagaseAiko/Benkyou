@@ -308,7 +308,7 @@ export function StudyItemPage() {
 
       <section className="section">
         <h2>Explicação</h2>
-        <p>{item.explanation}</p>
+        <p className="preserved-line-breaks">{item.explanation}</p>
       </section>
 
       {item.examples.length > 0 && (
@@ -343,7 +343,7 @@ export function StudyItemPage() {
       {item.notes && (
         <section className="section">
           <h2>Observações</h2>
-          <p className="notes">{item.notes}</p>
+          <p className="notes preserved-line-breaks">{item.notes}</p>
         </section>
       )}
 

@@ -356,7 +356,7 @@ export function ReviewPage() {
             <p className="completion-result__text" style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
               <strong>Estrutura:</strong> <FuriganaText japanese={item.japanese} reading={item.reading} />
             </p>
-            <p className="completion-result__text" style={{ marginBottom: '1.5rem', lineHeight: '1.6' }}>
+            <p className="completion-result__text preserved-line-breaks" style={{ marginBottom: '1.5rem' }}>
               {item.explanation}
             </p>
             
