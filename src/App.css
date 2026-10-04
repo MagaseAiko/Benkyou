@@ -67,6 +67,15 @@
   transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
+.section > h2 {
+  margin: 0 0 0.5rem;
+}
+
+.section > h2 + p,
+.section > h2 + ul {
+  margin-top: 0;
+}
+
 .preserved-line-breaks {
   white-space: pre-line;
   line-height: 1.7;
