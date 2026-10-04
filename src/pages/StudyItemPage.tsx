@@ -9,6 +9,23 @@ import { highlightGrammar } from '../utils/highlight'
 import { buildFuriganaMap, isKanji } from '../utils/furigana'
 import type { GrammarItem } from '../types'
 
+const JAPANESE_TEXT_PATTERN = /([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+)/gu
+const JAPANESE_TEXT_SEGMENT_PATTERN = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+$/u
+
+function JapaneseHighlightedText({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(JAPANESE_TEXT_PATTERN).map((part, index) =>
+        JAPANESE_TEXT_SEGMENT_PATTERN.test(part) ? (
+          <span key={index} className="grammar-highlight">{part}</span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  )
+}
+
 function FuriganaText({ japanese, reading }: { japanese: string; reading: string }) {
   const mapping = useMemo(() => buildFuriganaMap(japanese, reading), [japanese, reading])
 
@@ -301,14 +318,16 @@ export function StudyItemPage() {
         <section className="section">
           <h2>Estrutura</h2>
           <p className="structure" style={{ whiteSpace: 'pre-line' }}>
-            {item.structure}
+            <JapaneseHighlightedText text={item.structure.replace(/^\r?\n/, '')} />
           </p>
         </section>
       )}
 
       <section className="section">
         <h2>Explicação</h2>
-        <p className="preserved-line-breaks">{item.explanation}</p>
+        <p className="preserved-line-breaks">
+          <JapaneseHighlightedText text={item.explanation.replace(/^\r?\n/, '')} />
+        </p>
       </section>
 
       {item.examples.length > 0 && (
@@ -343,7 +362,9 @@ export function StudyItemPage() {
       {item.notes && (
         <section className="section">
           <h2>Observações</h2>
-          <p className="notes preserved-line-breaks">{item.notes}</p>
+          <p className="notes preserved-line-breaks">
+            <JapaneseHighlightedText text={item.notes.replace(/^\r?\n/, '')} />
+          </p>
         </section>
       )}
 
