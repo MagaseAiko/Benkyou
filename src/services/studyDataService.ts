@@ -48,6 +48,7 @@ type SupabaseGrammarRow = {
 }
 
 let grammarCache: GrammarItem[] | null = null
+const grammarIdCollator = new Intl.Collator(undefined, { numeric: true })
 
 const normalizeLevel = (value: string): JLPTLevel => (isValidLevel(value) ? value : 'N5')
 
@@ -94,7 +95,11 @@ export async function getAllGrammar(): Promise<GrammarItem[]> {
     throw error
   }
 
-  grammarCache = (data ?? []).map(mapGrammarRowToItem)
+  grammarCache = (data ?? [])
+    .map(mapGrammarRowToItem)
+    .sort((first, second) =>
+      first.level.localeCompare(second.level) || grammarIdCollator.compare(first.id, second.id),
+    )
   return grammarCache
 }
 
