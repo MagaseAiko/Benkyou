@@ -23,7 +23,7 @@ export function useUserProgressContext() {
 }
 
 export function UserProgressProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [profile, setProfile] = useState<UserProfile>({
     currentStreak: 0,
     longestStreak: 0,
@@ -33,6 +33,9 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // Usuário cujo perfil já foi carregado; evita expor um perfil vazio
+  // (jlptLevel null) no intervalo entre o login resolver e o perfil chegar.
+  const [loadedUserId, setLoadedUserId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user?.id) {
@@ -72,6 +75,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         setError((err as Error).message ?? 'Erro ao carregar perfil')
       } finally {
         setLoading(false)
+        setLoadedUserId(user.id)
       }
     }
 
@@ -169,12 +173,14 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     }
   }, [user?.id])
 
+  const isProfilePending = Boolean(user?.id) && loadedUserId !== user?.id
+
   const value = useMemo(() => ({
     profile,
-    loading,
+    loading: authLoading || loading || isProfilePending,
     error,
     setLevel,
-  }), [profile, loading, error, setLevel])
+  }), [profile, authLoading, loading, isProfilePending, error, setLevel])
 
   return (
     <UserProgressContext.Provider value={value}>
