@@ -38,17 +38,6 @@
   overflow: hidden;
 }
 
-.login-art::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 58%;
-  height: 1.5px;
-  background: var(--on-pastel);
-  opacity: 0.85;
-}
-
 .login-art__sun {
   position: absolute;
   left: 50%;
@@ -166,10 +155,6 @@
     padding: 1.25rem 1.4rem;
     border-right: none;
     border-bottom: 1.5px solid var(--edge);
-  }
-
-  .login-art::after {
-    top: 70%;
   }
 
   .login-art__sun {
