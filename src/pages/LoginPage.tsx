@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
+import { Logo } from '../components/Logo'
 import './LoginPage.css'
 
 export function LoginPage() {
@@ -64,90 +65,111 @@ export function LoginPage() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <div className="login-header">
-          <img src="/Icon.png" alt="logo" className="login-logo" />
-          <h1>「Benkyou」勉今日！</h1>
-          <p className="login-subtitle">Estudo de gramática com repetição espaçada</p>
-        </div>
+        <aside className="login-art" aria-hidden="true">
+          <svg className="login-art__sun" viewBox="0 0 200 200">
+            <defs>
+              <clipPath id="login-sun-clip">
+                <circle cx="100" cy="100" r="86" />
+              </clipPath>
+            </defs>
+            <g clipPath="url(#login-sun-clip)" fill="var(--logo-sun)">
+              <rect x="0" y="0" width="200" height="104" />
+              <rect x="0" y="114" width="200" height="12" />
+              <rect x="0" y="134" width="200" height="9" />
+              <rect x="0" y="150" width="200" height="6" />
+              <rect x="0" y="163" width="200" height="4" />
+            </g>
+          </svg>
+          <span className="login-art__vertical">勉今日</span>
+          <p className="login-art__caption">um pouco de japonês, todo dia.</p>
+        </aside>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-              disabled={loading}
-            />
+        <div className="login-panel">
+          <div className="login-header">
+            <Logo size={40} showTagline={false} />
+            <h1>{isLogin ? 'Bem-vindo de volta' : 'Crie sua conta'}</h1>
+            <p className="login-subtitle">Estudo de gramática com repetição espaçada</p>
           </div>
 
-          {!isLogin && (
+          <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label htmlFor="username">Nome de Usuário</label>
+              <label htmlFor="email">Email</label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="seu_nome_usuario"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
                 required
                 disabled={loading}
-                minLength={3}
-                maxLength={30}
               />
             </div>
-          )}
 
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              disabled={loading}
-            />
-          </div>
+            {!isLogin && (
+              <div className="form-group">
+                <label htmlFor="username">Nome de Usuário</label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="seu_nome_usuario"
+                  required
+                  disabled={loading}
+                  minLength={3}
+                  maxLength={30}
+                />
+              </div>
+            )}
 
-          {!isLogin && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirme a Senha</label>
+              <label htmlFor="password">Senha</label>
               <input
-                id="confirmPassword"
+                id="password"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
                 disabled={loading}
               />
             </div>
-          )}
+
+            {!isLogin && (
+              <div className="form-group">
+                <label htmlFor="confirmPassword">Confirme a Senha</label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="button button--primary login-button"
+              disabled={loading}
+            >
+              {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar Conta'}
+            </button>
+          </form>
+
+          <div className="login-divider">ou</div>
 
           <button
-            type="submit"
-            className="button button--primary login-button"
+            type="button"
+            className="button login-toggle"
+            onClick={toggleMode}
             disabled={loading}
           >
-            {loading ? 'Carregando...' : isLogin ? 'Entrar' : 'Criar Conta'}
+            {isLogin ? 'Não tem conta? Criar' : 'Já tem conta? Entrar'}
           </button>
-        </form>
-
-        <div className="login-divider">ou</div>
-
-        <button
-          type="button"
-          className="button login-toggle"
-          onClick={toggleMode}
-          disabled={loading}
-        >
-          {isLogin ? 'Não tem conta? Criar' : 'Já tem conta? Entrar'}
-        </button>
+        </div>
       </div>
       <Toast message={message} onClose={closeToast} type={toastType} />
     </div>

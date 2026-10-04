@@ -1,110 +1,21 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { House, PenLine, LayoutGrid, Info, Settings, Ellipsis, LogOut } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProgress } from '../hooks/useUserProgress'
+import { Logo, StreakFlame } from './Logo'
 
 const navItems = [
-  {
-    to: '/',
-    label: 'Início',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, flexShrink: 0 }}>
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    to: '/review',
-    label: 'Revisão',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, flexShrink: 0 }}>
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-      </svg>
-    ),
-  },
-  {
-    to: '/dashboard',
-    label: 'Dashboard',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, flexShrink: 0 }}>
-        <rect width="7" height="9" x="3" y="3" rx="1" />
-        <rect width="7" height="5" x="14" y="3" rx="1" />
-        <rect width="7" height="9" x="14" y="12" rx="1" />
-        <rect width="7" height="5" x="3" y="16" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    to: '/about',
-    label: 'Sobre',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, flexShrink: 0 }}>
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 16v-4" />
-        <path d="M12 8h.01" />
-      </svg>
-    ),
-  },
-  {
-    to: '/options',
-    label: 'Opções',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18, flexShrink: 0 }}>
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    ),
-  },
+  { to: '/', label: 'Início', icon: <House strokeWidth={1.8} /> },
+  { to: '/review', label: 'Revisão', icon: <PenLine strokeWidth={1.8} /> },
+  { to: '/dashboard', label: 'Dashboard', icon: <LayoutGrid strokeWidth={1.8} /> },
+  { to: '/about', label: 'Sobre', icon: <Info strokeWidth={1.8} /> },
+  { to: '/options', label: 'Opções', icon: <Settings strokeWidth={1.8} /> },
 ]
 
 // Items shown in the bottom bar (primary 4)
-const bottomNavItems = [
-  {
-    to: '/',
-    label: 'Início',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-        <polyline points="9 22 9 12 15 12 15 22" />
-      </svg>
-    ),
-  },
-  {
-    to: '/review',
-    label: 'Revisão',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-      </svg>
-    ),
-  },
-  {
-    to: '/dashboard',
-    label: 'Dashboard',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect width="7" height="9" x="3" y="3" rx="1" />
-        <rect width="7" height="5" x="14" y="3" rx="1" />
-        <rect width="7" height="9" x="14" y="12" rx="1" />
-        <rect width="7" height="5" x="3" y="16" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    to: '/options',
-    label: 'Opções',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    ),
-  },
-]
+const bottomNavItems = navItems.filter((item) => item.to !== '/about')
 
 export function Navbar() {
   const navigate = useNavigate()
@@ -140,12 +51,11 @@ export function Navbar() {
 
   return (
     <>
-      {/* ── Desktop Navbar ── */}
+      {/* ── Top bar ── */}
       <nav className="navbar">
         <div className="navbar__container">
-          <NavLink to="/" className="navbar__brand">
-            <img src="/Icon.png" alt="logo" className="navbar__logo" />
-            <span className="navbar__title">「Benkyou」勉今日！</span>
+          <NavLink to="/" className="navbar__brand" aria-label="Benkyou — início">
+            <Logo size={36} />
           </NavLink>
 
           <div className="navbar__desktop">
@@ -163,35 +73,30 @@ export function Navbar() {
                 </NavLink>
               ))}
             </div>
+          </div>
 
-            <div className="navbar__actions">
-              {user && (
-                <span
-                  className="navbar__streak"
-                  data-tour="nav-streak"
-                  title={`Sequência atual: ${profile.currentStreak} dias`}
-                >
-                  <img
-                    src="/Streak.png"
-                    alt="Streak"
-                    className="navbar__streak-icon"
-                    width={18}
-                    height={18}
-                  />
-                  <span className="navbar__streak-count">{profile.currentStreak}</span>
-                </span>
-              )}
-              {user && (
-                <button
-                  className="navbar__logout-button"
-                  onClick={handleLogout}
-                  disabled={loading}
-                  title={`Logado como: ${user.email}`}
-                >
-                  Sair
-                </button>
-              )}
-            </div>
+          <div className="navbar__actions">
+            {user && (
+              <span
+                className="navbar__streak"
+                data-tour="nav-streak"
+                title={`Sequência atual: ${profile.currentStreak} dias`}
+              >
+                <StreakFlame size={18} />
+                <span className="navbar__streak-count">{profile.currentStreak}</span>
+                <span className="navbar__streak-unit">{profile.currentStreak === 1 ? 'dia' : 'dias'}</span>
+              </span>
+            )}
+            {user && (
+              <button
+                className="navbar__logout-button"
+                onClick={handleLogout}
+                disabled={loading}
+                title={`Logado como: ${user.email}`}
+              >
+                Sair
+              </button>
+            )}
           </div>
         </div>
       </nav>
@@ -226,11 +131,7 @@ export function Navbar() {
                 aria-expanded={isDrawerOpen}
               >
                 <span className="bottom-nav__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="1" />
-                    <circle cx="19" cy="12" r="1" />
-                    <circle cx="5" cy="12" r="1" />
-                  </svg>
+                  <Ellipsis strokeWidth={1.8} />
                 </span>
                 <span className="bottom-nav__label">Mais</span>
               </button>
@@ -252,7 +153,7 @@ export function Navbar() {
           >
             <div className="mobile-drawer__handle" />
 
-            <div className="mobile-drawer__title">Navegação</div>
+            <div className="mobile-drawer__title">navegação</div>
 
             <div className="mobile-drawer__links">
               {navItems.map((item) => (
@@ -278,7 +179,7 @@ export function Navbar() {
                     className="mobile-drawer__streak"
                     title={`Sequência atual: ${profile.currentStreak} dias`}
                   >
-                    <img src="/Streak.png" alt="Streak" width={20} height={20} />
+                    <StreakFlame size={22} />
                     <span className="mobile-drawer__streak-label">Ofensiva atual</span>
                     <span className="mobile-drawer__streak-value">{profile.currentStreak} dias</span>
                   </div>
@@ -288,11 +189,7 @@ export function Navbar() {
                     onClick={() => { handleLogout(); closeDrawer() }}
                     disabled={loading}
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
+                    <LogOut size={18} strokeWidth={1.8} />
                     Sair da conta
                   </button>
                 </div>

@@ -8,6 +8,7 @@ import { STUDY_TYPES } from '../utils/constants'
 import { highlightGrammar } from '../utils/highlight'
 import { buildFuriganaMap, isKanji } from '../utils/furigana'
 import type { GrammarItem } from '../types'
+import { ArrowLeft, ArrowRight, Volume2 } from 'lucide-react'
 
 const JAPANESE_TEXT_PATTERN = /([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+)/gu
 const JAPANESE_TEXT_SEGMENT_PATTERN = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+$/u
@@ -291,7 +292,7 @@ export function StudyItemPage() {
               }
             }}
           >
-            ← Voltar
+            <ArrowLeft size={16} className="link-button__arrow" /> Voltar
           </button>
           <div className="item-status">
             {isMastered ? (
@@ -303,6 +304,9 @@ export function StudyItemPage() {
             )}
           </div>
         </div>
+        <span className="page__eyebrow">
+          {params.level.toLowerCase()} · {type === 'grammar' ? 'gramática' : 'vocabulário'} · {id}
+        </span>
         <h1 className="grammar-heading">
           {item.reading ? (
             <FuriganaText japanese={item.japanese} reading={item.reading} />
@@ -349,7 +353,7 @@ export function StudyItemPage() {
                     aria-label="Reproduzir áudio da frase"
                     disabled={isPlayingAudio}
                   >
-                    🔊
+                    <Volume2 size={15} strokeWidth={2} />
                   </button>
                 </div>
                 <div className="example-item__translation">{example.translation}</div>
@@ -398,7 +402,7 @@ export function StudyItemPage() {
             onClick={handleNext}
             disabled={!nextItem}
           >
-            Próximo
+            Próximo <ArrowRight size={16} strokeWidth={2.2} />
           </button>
         </div>
       </footer>
@@ -418,7 +422,7 @@ export function StudyItemPage() {
               <button className="button" type="button" onClick={handleCancelReset}>
                 Cancelar
               </button>
-              <button className="button button--primary" type="button" onClick={handleConfirmReset}>
+              <button className="button button--danger" type="button" onClick={handleConfirmReset}>
                 Confirmar
               </button>
             </div>

@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProgressContext } from '../contexts/UserProgressContext'
+import { LogoMark } from './Logo'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -13,7 +14,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div className="app-loading" role="status">
+        <LogoMark size={48} className="app-loading__mark" />
         <p>Carregando...</p>
       </div>
     )

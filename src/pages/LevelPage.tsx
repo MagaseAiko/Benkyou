@@ -3,6 +3,7 @@ import { useLocation, useParams, Navigate, useNavigate} from 'react-router-dom'
 import { useStudyData } from '../hooks/useStudyData'
 import { JLPT_LEVELS } from '../utils/constants'
 import { StudyItemCard } from '../components/StudyItemCard'
+import { ArrowLeft } from 'lucide-react'
 
 export function LevelPage() {
   const navigate = useNavigate()
@@ -28,15 +29,21 @@ export function LevelPage() {
   return (
     <main className="page">
       <header className="page__header">
-        <button type="button" className="link-button" onClick={() => navigate('/')}>
-          ← Voltar
-        </button>
+        <div className="page__header-top">
+          <button type="button" className="link-button" onClick={() => navigate('/')}>
+            <ArrowLeft size={16} className="link-button__arrow" /> Voltar
+          </button>
+        </div>
+        <span className="page__eyebrow">jlpt · {String(level).toLowerCase()}</span>
         <h1>Nível {level}</h1>
         <p>Escolha um item para estudar ou revisar.</p>
       </header>
 
       <section className="section">
-        <h2>Gramática</h2>
+        <h2>
+          Gramática
+          {!isLoading && grammar.length > 0 && <span className="section__count">{grammar.length}</span>}
+        </h2>
         {isLoading ? (
           <p className="empty-state">Carregando itens de gramática...</p>
         ) : grammar.length === 0 ? (

@@ -116,6 +116,7 @@ export function ReviewPage() {
     return (
       <main className="page">
         <header className="page__header">
+          <span className="page__eyebrow">revisão</span>
           <h1>Revisão</h1>
           <p>Use este espaço para revisar os itens estudados.</p>
         </header>
@@ -223,6 +224,7 @@ export function ReviewPage() {
   return (
     <main className="page">
       <header className="page__header">
+        <span className="page__eyebrow">revisão{reviewQueueDue.length > 0 ? ` · ${reviewQueueDue.length} na fila` : ''}</span>
         <h1>Revisão</h1>
         <p>Use este espaço para revisar os itens estudados.</p>
       </header>
@@ -231,9 +233,9 @@ export function ReviewPage() {
         completionSentence ? (
           <section className="flashcard">
             <header className="flashcard__header">
-              <p className="flashcard__meta">{item.level} • {item.type} • completude</p>
+              <p className="flashcard__meta">{item.level} · {item.type} · completar frase</p>
             </header>
-            <div className="flashcard__content" style={{ padding: '2rem 1.5rem' }}>
+            <div className="flashcard__content">
               
               {/* Botões de Dica */}
               <div className="review-hints">
@@ -300,24 +302,24 @@ export function ReviewPage() {
                   )}
 
                   <div className="review-actions">
-                    <button className="button button-show-info" type="button" onClick={() => setShowGrammarModal(true)}>
-                      <Info size={18} style={{ marginRight: '0.5rem' }} /> Ver explicação
+                    <button className="button button--ghost button-show-info" type="button" onClick={() => setShowGrammarModal(true)}>
+                      <Info size={17} /> Ver explicação
                     </button>
                     {completionResultStatus === 'correct' ? (
                       <>
-                        <button className="button" type="button" onClick={() => handleQuality('forgot')}>
+                        <button className="button button--forgot" type="button" onClick={() => handleQuality('forgot')}>
                           Esqueci
                         </button>
-                        <button className="button" type="button" onClick={() => handleQuality('continue')}>
+                        <button className="button button--again" type="button" onClick={() => handleQuality('continue')}>
                           Continuar estudando
                         </button>
-                        <button className="button button--primary" type="button" onClick={() => handleQuality('remembered')}>
+                        <button className="button button--remembered" type="button" onClick={() => handleQuality('remembered')}>
                           Decorei
                         </button>
                       </>
                     ) : (
                       <>
-                        <button className="button" type="button" onClick={() => handleQuality('forgot')}>
+                        <button className="button button--forgot" type="button" onClick={() => handleQuality('forgot')}>
                           Estudar de novo
                         </button>
                         <button className="button button--primary" type="button" onClick={() => handleQuality('continue')}>
@@ -347,33 +349,34 @@ export function ReviewPage() {
         <div className="grammar-modal-overlay" onClick={() => setShowGrammarModal(false)}>
           <div className="grammar-modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="grammar-modal-close" onClick={() => setShowGrammarModal(false)} aria-label="Fechar modal">
-              <X size={24} />
+              <X size={20} />
             </button>
             <div className="grammar-modal-header">
-              <h2>Detalhes da Gramática</h2>
+              <span className="page__eyebrow">{item.level} · detalhes</span>
+              <h2>
+                <FuriganaText japanese={item.japanese} reading={item.reading} />
+              </h2>
+              {item.translation && <p className="grammar-modal-translation">{item.translation}</p>}
             </div>
-            
-            <p className="completion-result__text" style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>
-              <strong>Estrutura:</strong> <FuriganaText japanese={item.japanese} reading={item.reading} />
-            </p>
-            <p className="completion-result__text preserved-line-breaks" style={{ marginBottom: '1.5rem' }}>
+
+            <p className="completion-result__text preserved-line-breaks">
               {item.explanation}
             </p>
             
             {item.examples.length > 0 && (
               <div className="completion-result__examples">
-                <h3 style={{ marginBottom: '1rem' }}>Exemplos</h3>
-                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h3>Exemplos</h3>
+                <ul>
                   {item.examples.map((example: any) => (
-                    <li key={example.japanese} style={{ background: 'var(--surface-alt)', padding: '1rem', borderRadius: '8px' }}>
-                      <div style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+                    <li key={example.japanese}>
+                      <div className="completion-result__example-jp">
                         <HighlightedText
                           japanese={example.japanese}
                           reading={example.reading}
                           grammar={item.type === 'grammar' && 'match_regex' in item ? item : undefined}
                         />
                       </div>
-                      <div style={{ color: 'var(--text-muted)' }}>{example.translation}</div>
+                      <div className="completion-result__example-tr">{example.translation}</div>
                     </li>
                   ))}
                 </ul>

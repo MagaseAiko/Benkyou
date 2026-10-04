@@ -2,16 +2,18 @@ import { Link } from 'react-router-dom'
 
 export function NotFoundPage() {
   return (
-    <main className="page">
+    <main className="page not-found">
+      <span className="not-found__code" aria-hidden="true">404</span>
       <header className="page__header">
-        <h1>404</h1>
-        <p>Página não encontrada.</p>
+        <span className="page__eyebrow">迷子 · perdido</span>
+        <h1>Página não encontrada.</h1>
+        <p>O endereço que você abriu não existe ou foi movido.</p>
       </header>
-      <section className="section">
+      <div>
         <Link to="/" className="button button--primary">
           Voltar para o início
         </Link>
-      </section>
+      </div>
     </main>
   )
 }

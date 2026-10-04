@@ -4,7 +4,8 @@ import { useAuth } from '../hooks/useAuth'
 import { useUserProgressContext } from '../contexts/UserProgressContext'
 import { useToast } from '../hooks/useToast'
 import type { JLPTLevel } from '../types'
-import { Check, ChevronRight, Sprout, BookOpen, MessageCircle, Mountain, Crown, Sparkles, Info } from 'lucide-react'
+import { Check, ChevronRight, Sprout, BookOpen, MessageCircle, Mountain, Crown, Info } from 'lucide-react'
+import { LogoMark } from '../components/Logo'
 import './OnboardingPage.css'
 
 const LEVELS: { id: JLPTLevel; title: string; desc: string; icon: React.ReactNode }[] = [
@@ -43,10 +44,9 @@ export function OnboardingPage() {
     <div className="onboarding-page">
       <div className="onboarding-container">
         <header className="onboarding-header">
-          <h1 className="onboarding-title">
-            <Sparkles className="title-icon" size={24} color="var(--accent)" />
-            Bem-vindo ao Benkyou!
-          </h1>
+          <LogoMark size={52} className="onboarding-logo" />
+          <span className="page__eyebrow">primeiros passos</span>
+          <h1 className="onboarding-title">Bem-vindo ao Benkyou!</h1>
           <p className="onboarding-subtitle">
             Qual é o seu nível de japonês atual?
           </p>
@@ -62,7 +62,7 @@ export function OnboardingPage() {
           {LEVELS.map((level, index) => (
             <button
               key={level.id}
-              className={`onboarding-level-card ${selectedLevel === level.id ? 'selected' : ''}`}
+              className={`onboarding-level-card onboarding-level-card--${level.id.toLowerCase()} ${selectedLevel === level.id ? 'selected' : ''}`}
               onClick={() => setSelectedLevel(level.id)}
               disabled={loading}
               style={{ animationDelay: `${index * 0.1}s` }}
@@ -77,7 +77,7 @@ export function OnboardingPage() {
                 </div>
               </div>
               <div className="level-card-check">
-                <Check size={18} strokeWidth={3} />
+                <Check size={16} strokeWidth={3} />
               </div>
             </button>
           ))}

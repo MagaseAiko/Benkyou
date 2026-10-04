@@ -260,19 +260,21 @@ export function SystemTour() {
       continuous
       onEvent={handleJoyrideCallback}
       options={{
-        primaryColor: 'var(--accent)',
-        textColor: 'var(--text)',
-        backgroundColor: 'var(--surface)',
-        arrowColor: 'var(--surface)',
-        overlayColor: 'rgba(0, 0, 0, 0.75)',
+        primaryColor: 'var(--lilac)',
+        textColor: 'var(--ink)',
+        backgroundColor: 'var(--card)',
+        arrowColor: 'var(--edge)',
+        overlayColor: 'rgba(30, 24, 38, 0.55)',
         overlayClickAction: false,
         zIndex: 10000,
         buttons: ['back', 'close', 'primary', 'skip'],
       }}
       styles={{
         tooltip: {
-          borderRadius: '12px',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          borderRadius: '16px',
+          border: '1.5px solid var(--edge)',
+          boxShadow: '5px 5px 0 var(--shadow-ink)',
+          fontFamily: 'var(--font-body)',
           padding: window.innerWidth < 480 ? '16px' : '24px',
           maxWidth: getResponsiveTooltipWidth(),
           fontSize: window.innerWidth < 480 ? '0.875rem' : '1rem',
@@ -284,14 +286,21 @@ export function SystemTour() {
           lineHeight: window.innerWidth < 480 ? '1.4' : '1.6',
         },
         buttonNext: {
+          backgroundColor: 'var(--lilac)',
+          color: 'var(--on-pastel)',
+          border: '1.5px solid var(--edge)',
+          borderRadius: '10px',
+          fontWeight: 700,
           padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
           fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
         },
         buttonBack: {
+          color: 'var(--ink-soft)',
           padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
           fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
         },
         buttonSkip: {
+          color: 'var(--ink-faint)',
           padding: window.innerWidth < 480 ? '6px 12px' : '8px 16px',
           fontSize: window.innerWidth < 480 ? '0.75rem' : '0.875rem',
         }

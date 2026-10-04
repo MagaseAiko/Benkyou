@@ -1,5 +1,6 @@
 import type { StudyItem } from '../types'
 import { Link } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 import { useUserProgress } from '../hooks/useUserProgress'
 
 type Props = {
@@ -21,18 +22,21 @@ export function StudyItemCard({ item }: Props) {
         state={{ fromLevel: true }}
         className="study-item-card__link"
       >
-        <div className="study-item-card__header">
-          <label className="study-item-card__checkbox">
-            <input type="checkbox" checked={isStudiedOrReviewing} disabled />
-            <div className="checkmark"></div>
-          </label>
+        <label className="study-item-card__checkbox" aria-label={isStudiedOrReviewing ? 'Estudado' : 'Não estudado'}>
+          <input type="checkbox" checked={isStudiedOrReviewing} disabled />
+          <div className="checkmark"></div>
+        </label>
+        <div className="study-item-card__body">
+          <div className="study-item-card__main">
+            <strong className="study-item-card__japanese">{item.japanese}</strong>
+            {item.reading && <span className="study-item-card__reading">{item.reading}</span>}
+          </div>
+          <div className="study-item-card__translation">{item.translation}</div>
+        </div>
+        <span className="study-item-card__end">
           <span className="study-item-card__id">{item.id}</span>
-        </div>
-        <div className="study-item-card__main">
-          <strong className="study-item-card__japanese">{item.japanese}</strong>
-          {item.reading && <span className="study-item-card__reading">{item.reading}</span>}
-        </div>
-        <div className="study-item-card__translation">{item.translation}</div>
+          <ChevronRight size={18} className="study-item-card__chevron" />
+        </span>
       </Link>
     </li>
   )

@@ -192,7 +192,8 @@ export function OptionsPage() {
 
   return (
     <main className="options-page">
-      <header className="options-header">
+      <header className="page__header options-header">
+        <span className="page__eyebrow">opções</span>
         <h1>Opções</h1>
         <p>Configurações gerais do aplicativo e da sua conta.</p>
       </header>
@@ -202,7 +203,7 @@ export function OptionsPage() {
         <section className="options-card">
           <div className="options-card-header">
             <div className="options-card-icon">
-              <User size={24} />
+              <User size={20} strokeWidth={1.8} />
             </div>
             <div>
               <h2 className="options-card-title">Conta do Usuário</h2>
@@ -376,7 +377,7 @@ export function OptionsPage() {
         <section className="options-card">
           <div className="options-card-header">
             <div className="options-card-icon danger">
-              <Shield size={24} />
+              <Shield size={20} strokeWidth={1.8} />
             </div>
             <div>
               <h2 className="options-card-title">Apagar progresso</h2>
@@ -384,8 +385,8 @@ export function OptionsPage() {
             </div>
           </div>
 
-          <div className="options-info-list" style={{ marginBottom: '1rem' }}>
-            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <div className="options-info-list">
+            <p className="options-warning-text">
               Você pode apagar seu progresso de estudo e revisão. Isso irá limpar permanentemente todos os itens em andamento
               e reiniciar seu histórico de aprendizado. Esta ação <strong>não</strong> pode ser desfeita.
             </p>
@@ -408,22 +409,21 @@ export function OptionsPage() {
       {isResetModalOpen && (
         <div className="modal" role="dialog" aria-modal="true">
           <div className="modal__backdrop" onClick={handleCancelReset} />
-          <div className="modal__content" style={{ maxWidth: '400px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--danger)' }}>
-              <AlertTriangle size={28} />
-              <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Apagar progresso?</h2>
+          <div className="modal__content options-modal">
+            <div className="options-modal__title">
+              <span className="options-modal__icon"><AlertTriangle size={20} strokeWidth={2} /></span>
+              <h2>Apagar progresso?</h2>
             </div>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+            <p>
               Isso vai apagar todo o seu histórico de estudos, itens em revisão e restaurar o estado original.
               Deseja continuar?
             </p>
-            <div className="modal__actions" style={{ marginTop: '0' }}>
+            <div className="modal__actions">
               <button className="button" type="button" onClick={handleCancelReset} disabled={loading}>
                 Cancelar
               </button>
               <button
                 className="button button--danger"
-                style={{ background: 'var(--danger)', color: '#fff', borderColor: 'var(--danger)' }}
                 type="button"
                 onClick={handleConfirmReset}
                 disabled={loading}

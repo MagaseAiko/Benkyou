@@ -3,10 +3,12 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell as PieCell
 } from 'recharts'
+import { Trophy, Library, CircleCheck, Star, Clock, ChartColumn, ChartPie } from 'lucide-react'
 import { useUserProgress } from '../hooks/useUserProgress'
 import { findStudyItemById, getAllStudyItems } from '../services/studyDataService'
 import { JLPT_LEVELS } from '../utils/constants'
 import type { StudyItem } from '../types'
+import { StreakFlame } from '../components/Logo'
 import './DashboardPage.css'
 
 export function DashboardPage() {
@@ -63,10 +65,10 @@ export function DashboardPage() {
     })
 
     return [
-      { name: 'Agora', value: buckets.now, fill: 'var(--danger)' },
-      { name: 'Hoje', value: buckets.today, fill: '#f59e0b' },
-      { name: 'Esta Semana', value: buckets.thisWeek, fill: 'var(--accent)' },
-      { name: 'Depois', value: buckets.later, fill: '#10b981' },
+      { name: 'Agora', value: buckets.now, fill: 'var(--rose)' },
+      { name: 'Hoje', value: buckets.today, fill: 'var(--butter)' },
+      { name: 'Esta Semana', value: buckets.thisWeek, fill: 'var(--lilac)' },
+      { name: 'Depois', value: buckets.later, fill: 'var(--mint)' },
     ]
   }, [progress.reviewQueue])
 
@@ -90,22 +92,7 @@ export function DashboardPage() {
     })
   }, [allStudyItems, progress.masteredItems, progress.studyingItems])
 
-  const FlameIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-    </svg>
-  );
-
-  const TrophyIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-      <path d="M4 22h16"/>
-      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-    </svg>
-  );
+  const scheduledSlices = reviewDistribution.filter((entry) => entry.value > 0)
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -122,24 +109,25 @@ export function DashboardPage() {
   return (
     <main className="dashboard-container">
       <header className="dashboard-header">
-        <div>
-          <h1>Dashboard</h1>
+        <div className="page__header">
+          <span className="page__eyebrow">dashboard</span>
+          <h1>Seu progresso</h1>
           <p>Bem-vindo de volta! Aqui está o seu progresso.</p>
         </div>
-        
+
         <div className="streak-container">
           <div className="streak-card current">
-            <div className="icon"><FlameIcon /></div>
+            <div className="icon"><StreakFlame size={24} /></div>
             <div className="streak-info">
-              <h4>Ofensiva Atual</h4>
-              <p className="value">{profile.currentStreak} dias</p>
+              <h4>Ofensiva atual</h4>
+              <p className="value">{profile.currentStreak} <small>dias</small></p>
             </div>
           </div>
           <div className="streak-card longest">
-            <div className="icon"><TrophyIcon /></div>
+            <div className="icon"><Trophy size={20} strokeWidth={1.8} /></div>
             <div className="streak-info">
-              <h4>Maior Ofensiva</h4>
-              <p className="value">{profile.longestStreak} dias</p>
+              <h4>Maior ofensiva</h4>
+              <p className="value">{profile.longestStreak} <small>dias</small></p>
             </div>
           </div>
         </div>
@@ -149,7 +137,7 @@ export function DashboardPage() {
         <div className="stat-box">
           <div className="stat-box__top">
             <span className="stat-title">Total de itens</span>
-            <svg className="stat-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <Library className="stat-icon" size={20} strokeWidth={1.8} />
           </div>
           <span className="stat-value">{totalItems}</span>
           <span className="stat-desc">Cadastrados no sistema</span>
@@ -157,23 +145,26 @@ export function DashboardPage() {
         <div className="stat-box highlight">
           <div className="stat-box__top">
             <span className="stat-title">Estudados</span>
-            <svg className="stat-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <CircleCheck className="stat-icon" size={20} strokeWidth={1.8} />
           </div>
           <span className="stat-value">{studiedCount}</span>
+          <div className="stat-meter" aria-hidden="true">
+            <span style={{ width: `${studiedPercent}%` }} />
+          </div>
           <span className="stat-desc">{studiedPercent}% concluído</span>
         </div>
-        <div className="stat-box">
+        <div className="stat-box mastered">
           <div className="stat-box__top">
             <span className="stat-title">Dominados</span>
-            <svg className="stat-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <Star className="stat-icon" size={20} strokeWidth={1.8} />
           </div>
           <span className="stat-value">{progress.masteredItems.length}</span>
           <span className="stat-desc">Aprendizado consolidado</span>
         </div>
         <div className="stat-box review">
           <div className="stat-box__top">
-            <span className="stat-title">Em Revisão</span>
-            <svg className="stat-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span className="stat-title">Em revisão</span>
+            <Clock className="stat-icon" size={20} strokeWidth={1.8} />
           </div>
           <span className="stat-value">{progress.reviewQueue.length}</span>
           <span className="stat-desc">{reviewQueueDue.length} prontos agora</span>
@@ -183,16 +174,16 @@ export function DashboardPage() {
       <section className="charts-grid">
         <div className="chart-card">
           <h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            Progresso por Nível
+            <ChartColumn size={18} strokeWidth={1.8} />
+            Progresso por nível
           </h3>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statsByLevel} margin={{ top: 20, right: 30, left: -20, bottom: 5 }}>
-                <XAxis dataKey="level" stroke="var(--text-disabled)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="var(--text-disabled)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{fill: 'var(--surface-alt)'}} />
-                <Bar dataKey="studied" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={50} />
+              <BarChart data={statsByLevel} margin={{ top: 20, right: 12, left: -20, bottom: 5 }}>
+                <XAxis dataKey="level" stroke="var(--ink-faint)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--ink-faint)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--paper-sunk)' }} />
+                <Bar dataKey="studied" fill="var(--lilac)" stroke="var(--edge)" strokeWidth={1.5} radius={[6, 6, 0, 0]} maxBarSize={46} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -200,36 +191,50 @@ export function DashboardPage() {
 
         <div className="chart-card">
           <h3>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-            Revisões Agendadas
+            <ChartPie size={18} strokeWidth={1.8} />
+            Revisões agendadas
           </h3>
-          <div className="chart-container">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={reviewDistribution.filter(d => d.value > 0)}
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {reviewDistribution.map((entry, index) => (
-                    <PieCell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="chart-container chart-container--pie">
+            {scheduledSlices.length === 0 ? (
+              <p className="chart-empty">Nenhuma revisão agendada ainda.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={scheduledSlices}
+                    innerRadius={58}
+                    outerRadius={82}
+                    paddingAngle={3}
+                    dataKey="value"
+                    stroke="var(--edge)"
+                    strokeWidth={1.5}
+                  >
+                    {scheduledSlices.map((entry) => (
+                      <PieCell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
+          <ul className="chart-legend">
+            {reviewDistribution.map((entry) => (
+              <li key={entry.name}>
+                <span className="chart-legend__dot" style={{ background: entry.fill }} />
+                <span className="chart-legend__name">{entry.name}</span>
+                <span className="chart-legend__value">{entry.value}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       <section className="reviews-card">
-        <h3>Próximos Itens para Revisar</h3>
+        <h3>Próximos itens para revisar</h3>
         {nextReviewItems.length === 0 ? (
-          <div className="empty-state">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div className="reviews-card__empty">
+            <CircleCheck size={36} strokeWidth={1.6} />
             <p>Excelente trabalho! Nenhum item agendado para revisão no momento.</p>
           </div>
         ) : (

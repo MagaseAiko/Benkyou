@@ -45,7 +45,7 @@ export function Flashcard({ item, onQuality }: Props) {
     <article className="flashcard">
       <header className="flashcard__header">
         <p className="flashcard__meta">
-          {item.level} • {item.type}
+          {item.level} · {item.type}
         </p>
       </header>
 
@@ -84,13 +84,13 @@ export function Flashcard({ item, onQuality }: Props) {
 
       {showAnswer && (
         <footer className="flashcard__actions">
-          <button className="button" onClick={() => handleQuality('forgot')}>
+          <button className="button button--forgot" onClick={() => handleQuality('forgot')}>
             Esqueci
           </button>
-          <button className="button" onClick={() => handleQuality('continue')}>
+          <button className="button button--again" onClick={() => handleQuality('continue')}>
             Continuar estudando
           </button>
-          <button className="button button--primary" onClick={() => handleQuality('remembered')}>
+          <button className="button button--remembered" onClick={() => handleQuality('remembered')}>
             Decorei
           </button>
         </footer>
