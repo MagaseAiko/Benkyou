@@ -50,20 +50,23 @@ function FuriganaText({ japanese, reading }: { japanese: string; reading: string
   )
 }
 
+function furiganaSpanHTML(text: string, reading: string | null): string {
+  const showTooltip = Boolean(reading && reading.trim()) && isKanji(text)
+  const isPunctuation = /[。、！？]/.test(text)
+  const classes = `furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`
+  let html = `<span class="${classes}">`
+  html += `<span class="furigana-target">${text}</span>`
+  if (showTooltip) {
+    html += `<span class="furigana-tooltip">${reading}</span>`
+  }
+  html += '</span>'
+  return html
+}
+
 function generateFuriganaHTML(japanese: string, reading: string): string {
-  const mapping = buildFuriganaMap(japanese, reading)
-  return mapping.map((item) => {
-    const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
-    const isPunctuation = /[。、！？]/.test(item.char)
-    const classes = `furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`
-    let html = `<span class="${classes}">`
-    html += `<span class="furigana-target">${item.char}</span>`
-    if (showTooltip) {
-      html += `<span class="furigana-tooltip">${item.reading}</span>`
-    }
-    html += '</span>'
-    return html
-  }).join('')
+  return buildFuriganaMap(japanese, reading)
+    .map((item) => furiganaSpanHTML(item.char, item.reading))
+    .join('')
 }
 
 function applyFuriganaToHighlightedText(highlightedText: string, reading: string): string {
@@ -75,37 +78,41 @@ function applyFuriganaToHighlightedText(highlightedText: string, reading: string
     .replace(/<span class="grammar-highlight">/g, '')
     .replace(/<\/span>/g, '')
 
-  const mapping = buildFuriganaMap(originalText, reading)
+  // Cada segmento pode ter mais de um caractere (bloco de kanjis), então
+  // guardamos a posição dele no texto original para cruzar com os destaques.
+  let offset = 0
+  const segments = buildFuriganaMap(originalText, reading).map((item) => {
+    const segment = { ...item, start: offset, end: offset + item.char.length }
+    offset = segment.end
+    return segment
+  })
 
   let result = ''
-  let mappingIndex = 0
+  let textOffset = 0
 
   const parts = highlightedText.split(/(<span class="grammar-highlight">|<\/span>)/)
 
   for (const part of parts) {
-    if (part === '<span class="grammar-highlight">') {
+    if (part === '<span class="grammar-highlight">' || part === '</span>') {
       result += part
-    } else if (part === '</span>') {
-      result += part
-    } else if (part) {
-      for (let i = 0; i < part.length; i++) {
-        if (mappingIndex < mapping.length) {
-          const item = mapping[mappingIndex]
-          const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
-          const isPunctuation = /[。、！？]/.test(item.char)
-          const classes = `furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`
-
-          result += `<span class="${classes}">`
-          result += `<span class="furigana-target">${item.char}</span>`
-          if (showTooltip) {
-            result += `<span class="furigana-tooltip">${item.reading}</span>`
-          }
-          result += '</span>'
-
-          mappingIndex++
-        }
-      }
+      continue
     }
+    if (!part) continue
+
+    const partStart = textOffset
+    const partEnd = textOffset + part.length
+
+    for (const segment of segments) {
+      if (segment.end <= partStart || segment.start >= partEnd) continue
+
+      const sliceStart = Math.max(segment.start, partStart)
+      const sliceEnd = Math.min(segment.end, partEnd)
+      // Se o destaque cortar um bloco de kanjis, a leitura fica no pedaço inicial
+      const segmentReading = sliceStart === segment.start ? segment.reading : null
+      result += furiganaSpanHTML(originalText.slice(sliceStart, sliceEnd), segmentReading)
+    }
+
+    textOffset = partEnd
   }
 
   return result
