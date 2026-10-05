@@ -29,27 +29,6 @@ function JapaneseHighlightedText({ text }: { text: string }) {
   )
 }
 
-function FuriganaText({ japanese, reading }: { japanese: string; reading: string }) {
-  const mapping = useMemo(() => buildFuriganaMap(japanese, reading), [japanese, reading])
-
-  return (
-    <span>
-      {mapping.map((item, index) => {
-        const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
-        const isPunctuation = /[。、！？]/.test(item.char)
-        return (
-          <span key={`${item.char}-${index}`} className={`furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`}>
-            <span className="furigana-target">{item.char}</span>
-            {showTooltip && (
-              <span className="furigana-tooltip">{item.reading}</span>
-            )}
-          </span>
-        )
-      })}
-    </span>
-  )
-}
-
 function furiganaSpanHTML(text: string, reading: string | null): string {
   const showTooltip = Boolean(reading && reading.trim()) && isKanji(text)
   const isPunctuation = /[。、！？]/.test(text)
@@ -290,13 +269,7 @@ export function StudyItemPage() {
         <span className="page__eyebrow">
           {params.level.toLowerCase()} · {type === 'grammar' ? 'gramática' : 'vocabulário'} · {id}
         </span>
-        <h1 className="grammar-heading">
-          {item.reading ? (
-            <FuriganaText japanese={item.japanese} reading={item.reading} />
-          ) : (
-            item.japanese
-          )}
-        </h1>
+        <h1 className="grammar-heading">{item.japanese}</h1>
         {item.reading && <p className="subheading">{item.reading}</p>}
         <p className="translation">{item.translation}</p>
       </header>
@@ -372,11 +345,7 @@ export function StudyItemPage() {
           <div className="next-preview">
             <span>Próximo:</span>
             <span className="next-preview__text">
-              {nextItem ? (
-                <FuriganaText japanese={nextItem.japanese} reading={nextItem.reading ?? ''} />
-              ) : (
-                '—'
-              )}
+              {nextItem ? nextItem.japanese : '—'}
             </span>
           </div>
           <button

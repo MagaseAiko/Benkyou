@@ -6,7 +6,6 @@ import { useStudyItem } from '../hooks/useStudyData'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
 import { HighlightedText } from './StudyItemPage'
-import { buildFuriganaMap, isKanji } from '../utils/furigana'
 import type { ReviewSentence } from '../types/study'
 import * as wanakana from 'wanakana'
 import { Lightbulb, Languages, CheckCircle, XCircle, AlertCircle, Info, X, Volume2 } from 'lucide-react'
@@ -16,30 +15,6 @@ import { useDailyGoal } from '../hooks/usePreferences'
 import { playJapaneseAudio } from '../utils/tts'
 import { StreakFlame } from '../components/Logo'
 import './ReviewPage.css'
-
-function FuriganaText({ japanese, reading }: { japanese: string; reading?: string }) {
-  const mapping = useMemo(() => {
-    if (!reading || reading.trim().length === 0) {
-      return [{ char: japanese, reading: null }]
-    }
-    return buildFuriganaMap(japanese, reading)
-  }, [japanese, reading])
-
-  return (
-    <span>
-      {mapping.map((item, index) => {
-        const showTooltip = Boolean(item.reading && item.reading.trim()) && isKanji(item.char)
-        const isPunctuation = /[。、！？]/.test(item.char)
-        return (
-          <span key={`${item.char}-${index}`} className={`furigana-wrapper ${isPunctuation ? 'furigana-punctuation' : ''}`}>
-            <span className="furigana-target">{item.char}</span>
-            {showTooltip && <span className="furigana-tooltip">{item.reading}</span>}
-          </span>
-        )
-      })}
-    </span>
-  )
-}
 
 function normalizeAnswer(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')
@@ -489,7 +464,7 @@ export function ReviewPage() {
             <div className="grammar-modal-header">
               <span className="page__eyebrow">{item.level} · detalhes</span>
               <h2>
-                <FuriganaText japanese={item.japanese} reading={item.reading} />
+                {item.japanese}
               </h2>
               {item.translation && <p className="grammar-modal-translation">{item.translation}</p>}
             </div>

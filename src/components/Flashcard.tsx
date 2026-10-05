@@ -75,7 +75,7 @@ export function Flashcard({ item, onQuality }: Props) {
 
       <section className="flashcard__content">
         <p className="flashcard__front">
-          <FuriganaText japanese={item.japanese} reading={item.reading} />
+          {item.japanese}
         </p>
 
         {showAnswer ? (
