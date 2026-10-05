@@ -14,7 +14,6 @@ import { Link } from 'react-router-dom'
 import { useTourRunning } from '../hooks/useTourState'
 import { useDailyGoal } from '../hooks/usePreferences'
 import { playJapaneseAudio } from '../utils/tts'
-import { FuriganaToggle } from '../components/FuriganaToggle'
 import { StreakFlame } from '../components/Logo'
 import './ReviewPage.css'
 
@@ -215,18 +214,20 @@ export function ReviewPage() {
     return completionSentence.sentence.replace(/_{2,}/, answer)
   }, [completionSentence])
 
-  const handlePlaySentence = useCallback(async () => {
-    if (!fullSentence || isPlayingAudio) return
+  const handlePlayAudio = useCallback(async (text: string) => {
+    if (!text || isPlayingAudio) return
     setIsPlayingAudio(true)
     try {
-      await playJapaneseAudio(fullSentence)
+      await playJapaneseAudio(text)
     } catch (error) {
       console.error('Erro ao reproduzir áudio:', error)
       showToast('Erro ao reproduzir áudio. Tente novamente.')
     } finally {
       setIsPlayingAudio(false)
     }
-  }, [fullSentence, isPlayingAudio, showToast])
+  }, [isPlayingAudio, showToast])
+
+  const handlePlaySentence = useCallback(() => handlePlayAudio(fullSentence), [handlePlayAudio, fullSentence])
 
   // Atalhos de teclado depois de verificar: 1/2/3 avaliam, I abre a explicação, O toca o áudio
   useEffect(() => {
@@ -345,7 +346,6 @@ export function ReviewPage() {
                 >
                   <Lightbulb size={16} /> Estrutura
                 </button>
-                <FuriganaToggle className="review-hints__furigana" />
               </div>
 
               {/* Dica de Tradução */}
@@ -510,6 +510,15 @@ export function ReviewPage() {
                           reading={example.reading}
                           grammar={item.type === 'grammar' && 'match_regex' in item ? item : undefined}
                         />
+                        <button
+                          type="button"
+                          className="example-item__audio-btn"
+                          onClick={() => handlePlayAudio(example.japanese)}
+                          aria-label="Reproduzir áudio da frase"
+                          disabled={isPlayingAudio}
+                        >
+                          <Volume2 size={15} strokeWidth={2} />
+                        </button>
                       </div>
                       <div className="completion-result__example-tr">{example.translation}</div>
                     </li>

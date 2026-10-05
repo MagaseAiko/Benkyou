@@ -298,6 +298,9 @@
 }
 
 .completion-result__example-jp {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 1.1rem;
   margin-bottom: 0.15rem;
 }
@@ -348,17 +351,14 @@
   }
 }
 
-/* ── Furigana nas dicas ── */
-.review-hints__furigana {
-  min-height: 36px;
-}
-
 /* ── Ouvir frase ── */
 .review-listen {
-  display: inline-flex;
+  /* Fica em linha própria, abaixo do resultado */
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 0.4rem;
-  margin-top: 0.85rem;
+  margin: 1.5rem auto 0;
   padding: 0.35rem 0.85rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--rule-strong);
