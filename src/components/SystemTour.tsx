@@ -200,9 +200,26 @@ export function SystemTour() {
     }, 100)
   }
 
+  const endTour = () => {
+    setRun(false)
+    setStepIndex(0)
+    if (user) {
+      completeOnboarding()
+    }
+    navigate('/')
+  }
+
   const handleJoyrideCallback = (data: EventData) => {
     const { action, index, status, type } = data
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED]
+
+    // Fechar o tour (botão X ou Esc) encerra o tour. Antes, o "close" apenas
+    // pulava para o próximo passo como beacon, deixando o tour ativo e
+    // forçando o usuário de volta para as páginas do tour.
+    if (finishedStatuses.includes(status) || action === ACTIONS.CLOSE || action === ACTIONS.SKIP) {
+      if (run) endTour()
+      return
+    }
 
     if (type === EVENTS.TOOLTIP) {
       const step = steps[index]
@@ -222,13 +239,6 @@ export function SystemTour() {
       setStepIndex(nextStepIndex)
     } else if (type === EVENTS.TARGET_NOT_FOUND) {
       console.warn(`Target not found for step ${index}`)
-    } else if (finishedStatuses.includes(status)) {
-      setRun(false)
-      setStepIndex(0)
-      if (user) {
-        completeOnboarding()
-      }
-      navigate('/')
     }
   }
 
@@ -266,6 +276,7 @@ export function SystemTour() {
         arrowColor: 'var(--edge)',
         overlayColor: 'rgba(30, 24, 38, 0.55)',
         overlayClickAction: false,
+        closeButtonAction: 'skip',
         zIndex: 10000,
         buttons: ['back', 'close', 'primary', 'skip'],
       }}
