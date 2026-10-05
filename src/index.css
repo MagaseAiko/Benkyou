@@ -104,8 +104,9 @@
   background-color: var(--paper);
 }
 
+/* Tema escuro: segue o sistema, a menos que o usuário escolha um tema */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --paper: #1C1922;
     --paper-sunk: #16141B;
     --card: #24202C;
@@ -148,6 +149,49 @@
   }
 }
 
+/* Tema escolhido manualmente em Opções */
+:root[data-theme="dark"] {
+  --paper: #1C1922;
+  --paper-sunk: #16141B;
+  --card: #24202C;
+  --card-hover: #2A2533;
+  --ink: #EFE8DA;
+  --ink-soft: #B7AEC2;
+  --ink-faint: #7F778B;
+  --rule: rgba(239, 232, 218, 0.1);
+  --rule-strong: rgba(239, 232, 218, 0.2);
+  --edge: #4B4258;
+  --shadow-ink: #0D0B11;
+  --on-pastel: #1D1824;
+
+  --lilac: #BEA9F0;
+  --lilac-soft: rgba(190, 169, 240, 0.14);
+  --lilac-ink: #CDBDF6;
+  --mint: #A9D8BF;
+  --mint-soft: rgba(169, 216, 191, 0.13);
+  --mint-ink: #A9D8BF;
+  --butter: #EBD58E;
+  --butter-soft: rgba(235, 213, 142, 0.13);
+  --butter-ink: #EBD58E;
+  --peach: #F0B898;
+  --peach-soft: rgba(240, 184, 152, 0.13);
+  --peach-ink: #F0B898;
+  --rose: #EDA8BC;
+  --rose-soft: rgba(237, 168, 188, 0.13);
+  --rose-ink: #F0B3C5;
+  --sky: #A9C9E8;
+  --sky-soft: rgba(169, 201, 232, 0.13);
+  --sky-ink: #A9C9E8;
+
+  --logo-sun: #FFF6E6;
+  --logo-ink: #0D0B11;
+
+  --float: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  --grain-opacity: 0.18;
+
+  color-scheme: dark;
+}
+
 /* ═══════════════════════════════════════════════════════════
    BASE
    ═══════════════════════════════════════════════════════════ */
@@ -181,10 +225,15 @@ body::before {
 }
 
 @media (prefers-color-scheme: dark) {
-  body::before {
+  :root:not([data-theme="light"]) body::before {
     mix-blend-mode: screen;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.94 0 0 0 0 0.91 0 0 0 0 0.85 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+}
+
+:root[data-theme="dark"] body::before {
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.94 0 0 0 0 0.91 0 0 0 0 0.85 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 h1, h2, h3, h4 {

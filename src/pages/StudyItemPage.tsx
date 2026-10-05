@@ -9,6 +9,8 @@ import { highlightGrammar } from '../utils/highlight'
 import { buildFuriganaMap, isKanji } from '../utils/furigana'
 import type { GrammarItem } from '../types'
 import { ArrowLeft, ArrowRight, Volume2 } from 'lucide-react'
+import { playJapaneseAudio } from '../utils/tts'
+import { FuriganaToggle } from '../components/FuriganaToggle'
 
 const JAPANESE_TEXT_PATTERN = /([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+)/gu
 const JAPANESE_TEXT_SEGMENT_PATTERN = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー。、！？「」『』（）・：；〜…]+$/u
@@ -232,38 +234,11 @@ export function StudyItemPage() {
 
     setIsPlayingAudio(true)
     try {
-      const response = await fetch('https://api.deepgram.com/v1/speak?model=aura-2-fujin-ja', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Token 1f9c4cbfd649eaa2c3dbf76bac8be178bc75f965',
-        },
-        body: JSON.stringify({ text }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Erro na requisição: ${response.statusText}`)
-      }
-
-      const audioBlob = await response.blob()
-      const audioUrl = URL.createObjectURL(audioBlob)
-      const audio = new Audio(audioUrl)
-
-      audio.onended = () => {
-        setIsPlayingAudio(false)
-        URL.revokeObjectURL(audioUrl)
-      }
-
-      audio.onerror = () => {
-        setIsPlayingAudio(false)
-        showToast('Erro ao reproduzir áudio.')
-        URL.revokeObjectURL(audioUrl)
-      }
-
-      audio.play()
+      await playJapaneseAudio(text)
     } catch (error) {
       console.error('Erro ao reproduzir áudio:', error)
       showToast('Erro ao reproduzir áudio. Tente novamente.')
+    } finally {
       setIsPlayingAudio(false)
     }
   }
@@ -295,6 +270,7 @@ export function StudyItemPage() {
             <ArrowLeft size={16} className="link-button__arrow" /> Voltar
           </button>
           <div className="item-status">
+            <FuriganaToggle />
             {isMastered ? (
               <span className="item-status__badge item-status__badge--mastered">Dominado</span>
             ) : isInReview ? (

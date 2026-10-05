@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { StudyItem } from '../types'
 import { buildFuriganaMap, isKanji } from '../utils/furigana'
 
@@ -36,10 +36,34 @@ export function Flashcard({ item, onQuality }: Props) {
     setShowAnswer(false)
   }, [item.id])
 
-  const handleQuality = (quality: 'forgot' | 'continue' | 'remembered') => {
+  const handleQuality = useCallback((quality: 'forgot' | 'continue' | 'remembered') => {
     onQuality(quality)
     setShowAnswer(false)
-  }
+  }, [onQuality])
+
+  // Atalhos: Espaço mostra a resposta; 1/2/3 avaliam
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return
+      const target = event.target
+      if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName))) return
+
+      if (!showAnswer) {
+        if (event.key === ' ' || event.key === 'Enter') {
+          event.preventDefault()
+          setShowAnswer(true)
+        }
+        return
+      }
+
+      if (event.key === '1') handleQuality('forgot')
+      else if (event.key === '2') handleQuality('continue')
+      else if (event.key === '3') handleQuality('remembered')
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showAnswer, handleQuality])
 
   return (
     <article className="flashcard">
@@ -77,7 +101,7 @@ export function Flashcard({ item, onQuality }: Props) {
           </div>
         ) : (
           <button className="button button--primary" type="button" onClick={() => setShowAnswer(true)}>
-            Mostrar resposta
+            Mostrar resposta <span className="kbd">Espaço</span>
           </button>
         )}
       </section>
@@ -85,13 +109,13 @@ export function Flashcard({ item, onQuality }: Props) {
       {showAnswer && (
         <footer className="flashcard__actions">
           <button className="button button--forgot" onClick={() => handleQuality('forgot')}>
-            Esqueci
+            Esqueci <span className="kbd">1</span>
           </button>
           <button className="button button--again" onClick={() => handleQuality('continue')}>
-            Continuar estudando
+            Continuar estudando <span className="kbd">2</span>
           </button>
           <button className="button button--remembered" onClick={() => handleQuality('remembered')}>
-            Decorei
+            Decorei <span className="kbd">3</span>
           </button>
         </footer>
       )}

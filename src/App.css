@@ -489,6 +489,110 @@
   text-decoration-thickness: 1.5px;
 }
 
+/* Modo "sempre mostrar": leitura acima do kanji, como ruby */
+.furigana-always .furigana-wrapper {
+  display: inline-flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  vertical-align: bottom;
+}
+
+.furigana-always .furigana-tooltip {
+  position: static;
+  opacity: 1;
+  transform: none;
+  padding: 0;
+  margin-bottom: 0.1em;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.5em;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  pointer-events: auto;
+}
+
+.furigana-always .furigana-wrapper:hover .furigana-tooltip {
+  transform: none;
+}
+
+.furigana-always .furigana-wrapper:has(.furigana-tooltip) .furigana-target {
+  text-decoration: none;
+}
+
+/* Botão de alternância */
+.furigana-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--rule-strong);
+  background: var(--card);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-base), border-color var(--transition-base), color var(--transition-base);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.furigana-toggle:hover {
+  color: var(--ink);
+  border-color: var(--edge);
+}
+
+.furigana-toggle__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+
+.furigana-toggle--on {
+  color: var(--ink);
+  border-color: var(--edge);
+}
+
+.furigana-toggle--on .furigana-toggle__glyph {
+  background: var(--lilac);
+  border-color: var(--edge);
+  color: var(--on-pastel);
+}
+
+/* Teclas de atalho exibidas nos botões */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.3em;
+  margin-left: 0.15rem;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+@media (hover: none) {
+  .kbd {
+    display: none;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    EMPTY STATE
    ═══════════════════════════════════════════════════════════ */
@@ -1761,4 +1865,178 @@ section.empty-state p:first-child {
 
 .app-loading p {
   margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUSCA E FILTROS (página de nível)
+   ═══════════════════════════════════════════════════════════ */
+
+.level-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.level-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.level-search__icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+.level-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 2.5rem 0.6rem 2.4rem;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.95rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.level-search input::placeholder {
+  color: var(--ink-faint);
+}
+
+.level-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.level-search input:focus {
+  outline: none;
+  border-color: var(--edge);
+  box-shadow: var(--lift-sm);
+}
+
+.level-search__clear {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--paper-sunk);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.level-search__clear:hover {
+  color: var(--ink);
+}
+
+.level-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.level-filter-chip {
+  min-height: 32px;
+  padding: 0.25rem 0.8rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.level-filter-chip:hover {
+  color: var(--ink);
+  border-color: var(--edge);
+}
+
+.level-filter-chip--active {
+  background: var(--lilac);
+  border-color: var(--edge);
+  color: var(--on-pastel);
+  font-weight: 700;
+}
+
+.level-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 0 0.25rem;
+}
+
+/* ── Meta diária (faixa "hoje") ── */
+.daily-goal {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.daily-goal:hover {
+  border-color: var(--edge);
+  background: var(--paper-sunk);
+}
+
+.daily-goal__ring {
+  width: 40px;
+  height: 40px;
+  transform: rotate(-90deg);
+}
+
+.daily-goal__track {
+  fill: none;
+  stroke: var(--paper-sunk);
+  stroke-width: 6;
+}
+
+.daily-goal__fill {
+  fill: none;
+  stroke: var(--lilac);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 600ms var(--ease-out);
+}
+
+.daily-goal--done .daily-goal__fill {
+  stroke: var(--mint);
+}
+
+.daily-goal__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.daily-goal__count {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.daily-goal__label {
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 768px) {
+  .today-strip .button {
+    order: 4;
+  }
 }

@@ -9,7 +9,13 @@ import { HighlightedText } from './StudyItemPage'
 import { buildFuriganaMap, isKanji } from '../utils/furigana'
 import type { ReviewSentence } from '../types/study'
 import * as wanakana from 'wanakana'
-import { Lightbulb, Languages, CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react'
+import { Lightbulb, Languages, CheckCircle, XCircle, AlertCircle, Info, X, Volume2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useTourRunning } from '../hooks/useTourState'
+import { useDailyGoal } from '../hooks/usePreferences'
+import { playJapaneseAudio } from '../utils/tts'
+import { FuriganaToggle } from '../components/FuriganaToggle'
+import { StreakFlame } from '../components/Logo'
 import './ReviewPage.css'
 
 function FuriganaText({ japanese, reading }: { japanese: string; reading?: string }) {
@@ -54,6 +60,25 @@ function isCloseAnswer(answer: string, expected: string) {
   return ratio >= 0.6
 }
 
+const JAPANESE_CHAR_PATTERN = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u
+
+type SessionStats = {
+  reviewed: number
+  remembered: number
+  continued: number
+  forgot: number
+  firstTryCorrect: number
+}
+
+const EMPTY_SESSION: SessionStats = { reviewed: 0, remembered: 0, continued: 0, forgot: 0, firstTryCorrect: 0 }
+
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false
+  if (target.isContentEditable) return true
+  if (target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true
+  return target instanceof HTMLInputElement && !target.disabled
+}
+
 export function ReviewPage() {
   const { user } = useAuth()
   const { reviewQueueDue, updateReviewForQuality, profile } = useUserProgress()
@@ -68,11 +93,16 @@ export function ReviewPage() {
   const [showGrammarModal, setShowGrammarModal] = useState(false)
   
   const inputRef = useRef<HTMLInputElement>(null)
+  const [session, setSession] = useState<SessionStats>(EMPTY_SESSION)
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const { registerReview } = useDailyGoal(user?.id)
+  const isTourRunning = useTourRunning()
 
   const isTourActive =
-    user &&
-    profile.jlptLevel !== null &&
-    profile.hasCompletedOnboarding === false
+    (user &&
+      profile.jlptLevel !== null &&
+      profile.hasCompletedOnboarding === false) ||
+    isTourRunning
 
   let currentId = reviewQueueDue[0]?.id
   let isMock = false
@@ -112,19 +142,6 @@ export function ReviewPage() {
     return item.review_sentences[index]
   }, [item?.id, isMock, mockSentence])
 
-  if (current && itemLoading && !isMock) {
-    return (
-      <main className="page">
-        <header className="page__header">
-          <span className="page__eyebrow">revisão</span>
-          <h1>Revisão</h1>
-          <p>Use este espaço para revisar os itens estudados.</p>
-        </header>
-        <p className="empty-state">Carregando item de revisão...</p>
-      </main>
-    )
-  }
-
   useEffect(() => {
     setCompletionAnswer('')
     setShowCompletionResult(false)
@@ -152,8 +169,16 @@ export function ReviewPage() {
 
       showToast(toastMsg)
       updateReviewForQuality(current.id, quality)
+      registerReview()
+      setSession((prev) => ({
+        reviewed: prev.reviewed + 1,
+        remembered: prev.remembered + (quality === 'remembered' ? 1 : 0),
+        continued: prev.continued + (quality === 'continue' ? 1 : 0),
+        forgot: prev.forgot + (quality === 'forgot' ? 1 : 0),
+        firstTryCorrect: prev.firstTryCorrect + (completionResultStatus === 'correct' ? 1 : 0),
+      }))
     },
-    [current, showToast, updateReviewForQuality, isMock],
+    [current, showToast, updateReviewForQuality, isMock, registerReview, completionResultStatus],
   )
 
   const handleCheckCompletion = useCallback(() => {
@@ -180,6 +205,73 @@ export function ReviewPage() {
     window.addEventListener('tour-force-verify', handleForceVerify)
     return () => window.removeEventListener('tour-force-verify', handleForceVerify)
   }, [handleCheckCompletion])
+
+  const fullSentence = useMemo(() => {
+    if (!completionSentence) return ''
+    const answer =
+      completionSentence.answers.find((candidate) => JAPANESE_CHAR_PATTERN.test(candidate)) ??
+      completionSentence.answers[0] ??
+      ''
+    return completionSentence.sentence.replace(/_{2,}/, answer)
+  }, [completionSentence])
+
+  const handlePlaySentence = useCallback(async () => {
+    if (!fullSentence || isPlayingAudio) return
+    setIsPlayingAudio(true)
+    try {
+      await playJapaneseAudio(fullSentence)
+    } catch (error) {
+      console.error('Erro ao reproduzir áudio:', error)
+      showToast('Erro ao reproduzir áudio. Tente novamente.')
+    } finally {
+      setIsPlayingAudio(false)
+    }
+  }, [fullSentence, isPlayingAudio, showToast])
+
+  // Atalhos de teclado depois de verificar: 1/2/3 avaliam, I abre a explicação, O toca o áudio
+  useEffect(() => {
+    if (!current || !item || !completionSentence) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return
+
+      if (showGrammarModal) {
+        if (event.key === 'Escape') setShowGrammarModal(false)
+        return
+      }
+
+      if (!showCompletionResult || isTypingTarget(event.target)) return
+
+      const key = event.key.toLowerCase()
+      if (key === 'i') {
+        setShowGrammarModal(true)
+      } else if (key === 'o') {
+        handlePlaySentence()
+      } else if (key === '1') {
+        handleQuality('forgot')
+      } else if (key === '2') {
+        handleQuality('continue')
+      } else if (key === '3' && completionResultStatus === 'correct') {
+        handleQuality('remembered')
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [current, item, completionSentence, showGrammarModal, showCompletionResult, completionResultStatus, handleQuality, handlePlaySentence])
+
+  if (current && itemLoading && !isMock) {
+    return (
+      <main className="page">
+        <header className="page__header">
+          <span className="page__eyebrow">revisão</span>
+          <h1>Revisão</h1>
+          <p>Use este espaço para revisar os itens estudados.</p>
+        </header>
+        <p className="empty-state">Carregando item de revisão...</p>
+      </main>
+    )
+  }
 
   const renderInlineSentence = () => {
     if (!completionSentence) return null
@@ -253,6 +345,7 @@ export function ReviewPage() {
                 >
                   <Lightbulb size={16} /> Estrutura
                 </button>
+                <FuriganaToggle className="review-hints__furigana" />
               </div>
 
               {/* Dica de Tradução */}
@@ -281,7 +374,7 @@ export function ReviewPage() {
                     onClick={handleCheckCompletion}
                     disabled={completionAnswer.trim() === '' && !isMock}
                   >
-                    Verificar
+                    Verificar <span className="kbd">Enter</span>
                   </button>
                 </div>
               )}
@@ -301,29 +394,38 @@ export function ReviewPage() {
                     </div>
                   )}
 
+                  <button
+                    type="button"
+                    className="review-listen"
+                    onClick={handlePlaySentence}
+                    disabled={isPlayingAudio}
+                  >
+                    <Volume2 size={16} /> {isPlayingAudio ? 'Tocando...' : 'Ouvir frase'} <span className="kbd">O</span>
+                  </button>
+
                   <div className="review-actions">
                     <button className="button button--ghost button-show-info" type="button" onClick={() => setShowGrammarModal(true)}>
-                      <Info size={17} /> Ver explicação
+                      <Info size={17} /> Ver explicação <span className="kbd">I</span>
                     </button>
                     {completionResultStatus === 'correct' ? (
                       <>
                         <button className="button button--forgot" type="button" onClick={() => handleQuality('forgot')}>
-                          Esqueci
+                          Esqueci <span className="kbd">1</span>
                         </button>
                         <button className="button button--again" type="button" onClick={() => handleQuality('continue')}>
-                          Continuar estudando
+                          Continuar estudando <span className="kbd">2</span>
                         </button>
                         <button className="button button--remembered" type="button" onClick={() => handleQuality('remembered')}>
-                          Decorei
+                          Decorei <span className="kbd">3</span>
                         </button>
                       </>
                     ) : (
                       <>
                         <button className="button button--forgot" type="button" onClick={() => handleQuality('forgot')}>
-                          Estudar de novo
+                          Estudar de novo <span className="kbd">1</span>
                         </button>
                         <button className="button button--primary" type="button" onClick={() => handleQuality('continue')}>
-                          Avançar
+                          Avançar <span className="kbd">2</span>
                         </button>
                       </>
                     )}
@@ -335,6 +437,39 @@ export function ReviewPage() {
         ) : (
           <Flashcard item={item} onQuality={handleQuality} />
         )
+      ) : session.reviewed > 0 ? (
+        <section className="session-summary">
+          <span className="page__eyebrow">sessão concluída</span>
+          <h2 className="session-summary__title">
+            Você revisou {session.reviewed} {session.reviewed === 1 ? 'item' : 'itens'}!
+          </h2>
+          <ul className="session-summary__stats">
+            <li className="session-summary__stat session-summary__stat--remembered">
+              <span className="session-summary__value">{session.remembered}</span>
+              <span className="session-summary__label">decorados</span>
+            </li>
+            <li className="session-summary__stat session-summary__stat--continue">
+              <span className="session-summary__value">{session.continued}</span>
+              <span className="session-summary__label">continuar estudando</span>
+            </li>
+            <li className="session-summary__stat session-summary__stat--forgot">
+              <span className="session-summary__value">{session.forgot}</span>
+              <span className="session-summary__label">para rever hoje</span>
+            </li>
+          </ul>
+          <p className="session-summary__meta">
+            {session.firstTryCorrect > 0 && (
+              <>Acertou {session.firstTryCorrect} de primeira. </>
+            )}
+            <span className="session-summary__streak">
+              <StreakFlame size={16} /> Ofensiva de {profile.currentStreak} {profile.currentStreak === 1 ? 'dia' : 'dias'}
+            </span>
+          </p>
+          <div className="session-summary__actions">
+            <Link to="/" className="button">Voltar ao início</Link>
+            <Link to="/dashboard" className="button button--primary">Ver progresso</Link>
+          </div>
+        </section>
       ) : (
         <section className="empty-state">
           <p>Não há itens prontos para revisão no momento.</p>

@@ -5,6 +5,7 @@ import { STATUS, EVENTS, ACTIONS } from 'react-joyride'
 import { useAuth } from '../hooks/useAuth'
 import { useUserProgress } from '../hooks/useUserProgress'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { onTourRestartRequest, setTourRunning } from '../hooks/useTourState'
 
 export function SystemTour() {
   const { user } = useAuth()
@@ -16,6 +17,8 @@ export function SystemTour() {
 
   const [run, setRun] = useState(false)
   const [stepIndex, setStepIndex] = useState(0)
+  // Remonta o Joyride ao reiniciar, garantindo que ele comece do zero
+  const [tourKey, setTourKey] = useState(0)
 
   useEffect(() => {
     if (!user || loading) return
@@ -31,6 +34,20 @@ export function SystemTour() {
 
     setRun(false)
   }, [user, profile.jlptLevel, profile.hasCompletedOnboarding, loading])
+
+  // Publica o estado para outras telas (ex.: item de exemplo na Revisão)
+  useEffect(() => {
+    setTourRunning(run)
+  }, [run])
+
+  useEffect(() => () => setTourRunning(false), [])
+
+  // "Ver tour novamente" em Opções
+  useEffect(() => onTourRestartRequest(() => {
+    setTourKey((key) => key + 1)
+    setStepIndex(0)
+    setRun(true)
+  }), [])
 
   useEffect(() => {
     const handleNextStep = () => {
@@ -264,6 +281,7 @@ export function SystemTour() {
 
   return (
     <Joyride
+      key={tourKey}
       steps={responsiveSteps}
       run={run}
       stepIndex={stepIndex}

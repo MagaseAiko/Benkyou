@@ -4,11 +4,15 @@ import { ArrowRight } from 'lucide-react'
 import { LevelCard } from '../components/LevelCard'
 import { JLPT_LEVELS } from '../utils/constants'
 import { useUserProgress } from '../hooks/useUserProgress'
+import { useAuth } from '../hooks/useAuth'
+import { useDailyGoal } from '../hooks/usePreferences'
 import { getAllStudyItems } from '../services/studyDataService'
 import type { StudyItem } from '../types'
 
 export function HomePage() {
   const { progress, reviewQueueDue } = useUserProgress()
+  const { user } = useAuth()
+  const { goal, done } = useDailyGoal(user?.id)
   const [allItems, setAllItems] = useState<StudyItem[]>([])
 
   useEffect(() => {
@@ -46,6 +50,10 @@ export function HomePage() {
   const day = today.getDate()
   const month = today.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
   const dueCount = reviewQueueDue.length
+  const goalProgress = Math.min(done / goal, 1)
+  const goalReached = done >= goal
+  const RING_RADIUS = 20
+  const ringCircumference = 2 * Math.PI * RING_RADIUS
 
   return (
     <main className="page">
@@ -72,6 +80,28 @@ export function HomePage() {
               : 'Aproveite para estudar algo novo hoje.'}
           </p>
         </div>
+        <Link
+          to="/options"
+          className={`daily-goal ${goalReached ? 'daily-goal--done' : ''}`}
+          title="Ajustar meta diária em Opções"
+          aria-label={`Meta diária: ${done} de ${goal} revisões`}
+        >
+          <svg className="daily-goal__ring" viewBox="0 0 48 48" aria-hidden="true">
+            <circle className="daily-goal__track" cx="24" cy="24" r={RING_RADIUS} />
+            <circle
+              className="daily-goal__fill"
+              cx="24"
+              cy="24"
+              r={RING_RADIUS}
+              strokeDasharray={ringCircumference}
+              strokeDashoffset={ringCircumference * (1 - goalProgress)}
+            />
+          </svg>
+          <span className="daily-goal__text">
+            <span className="daily-goal__count">{Math.min(done, 999)}/{goal}</span>
+            <span className="daily-goal__label">{goalReached ? 'meta batida!' : 'meta do dia'}</span>
+          </span>
+        </Link>
         {dueCount > 0 && (
           <Link to="/review" className="button button--primary">
             Revisar <ArrowRight size={16} strokeWidth={2.2} />

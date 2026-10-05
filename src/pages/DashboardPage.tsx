@@ -9,6 +9,7 @@ import { findStudyItemById, getAllStudyItems } from '../services/studyDataServic
 import { JLPT_LEVELS } from '../utils/constants'
 import type { StudyItem } from '../types'
 import { StreakFlame } from '../components/Logo'
+import { ActivityCalendar } from '../components/ActivityCalendar'
 import './DashboardPage.css'
 
 export function DashboardPage() {
@@ -170,6 +171,8 @@ export function DashboardPage() {
           <span className="stat-desc">{reviewQueueDue.length} prontos agora</span>
         </div>
       </section>
+
+      <ActivityCalendar lastActivityDate={profile.lastActivityDate} />
 
       <section className="charts-grid">
         <div className="chart-card">
