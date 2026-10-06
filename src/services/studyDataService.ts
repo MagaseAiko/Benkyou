@@ -47,7 +47,13 @@ type SupabaseGrammarRow = {
   variations: string[]
 }
 
+// Lista COMPLETA de gramáticas. Só é preenchida por getAllGrammar().
 let grammarCache: GrammarItem[] | null = null
+// Itens buscados individualmente (ex.: revisão aberta antes da lista completa).
+// Ficam separados para nunca serem confundidos com a lista completa.
+const grammarByIdCache = new Map<string, GrammarItem>()
+// Evita várias buscas simultâneas da lista completa
+let grammarRequest: Promise<GrammarItem[]> | null = null
 const grammarIdCollator = new Intl.Collator(undefined, { numeric: true })
 
 const normalizeLevel = (value: string): JLPTLevel => (isValidLevel(value) ? value : 'N5')
@@ -85,34 +91,46 @@ export async function getAllGrammar(): Promise<GrammarItem[]> {
     return grammarCache
   }
 
-  const { data, error } = await supabase
-    .from('grammar')
-    .select('*, examples(*), review_sentences(*, review_answers(answer))')
-    .order('level', { ascending: true })
-    .order('id', { ascending: true })
+  if (!grammarRequest) {
+    grammarRequest = (async () => {
+      const { data, error } = await supabase
+        .from('grammar')
+        .select('*, examples(*), review_sentences(*, review_answers(answer))')
+        .order('level', { ascending: true })
+        .order('id', { ascending: true })
 
-  if (error) {
-    throw error
+      if (error) {
+        throw error
+      }
+
+      grammarCache = (data ?? [])
+        .map(mapGrammarRowToItem)
+        .sort((first, second) =>
+          first.level.localeCompare(second.level) || grammarIdCollator.compare(first.id, second.id),
+        )
+      return grammarCache
+    })().finally(() => {
+      grammarRequest = null
+    })
   }
 
-  grammarCache = (data ?? [])
-    .map(mapGrammarRowToItem)
-    .sort((first, second) =>
-      first.level.localeCompare(second.level) || grammarIdCollator.compare(first.id, second.id),
-    )
-  return grammarCache
+  return grammarRequest
 }
 
 export function clearGrammarCache() {
   grammarCache = null
+  grammarByIdCache.clear()
+  grammarRequest = null
+}
+
+function findCachedGrammar(id: string): GrammarItem | undefined {
+  return grammarByIdCache.get(id) ?? grammarCache?.find((item) => item.id === id)
 }
 
 export async function getGrammarById(id: string): Promise<GrammarItem | null> {
-  if (grammarCache) {
-    const cachedItem = grammarCache.find((item) => item.id === id)
-    if (cachedItem && cachedItem.review_sentences && cachedItem.review_sentences.length > 0) {
-      return cachedItem
-    }
+  const cachedItem = findCachedGrammar(id)
+  if (cachedItem && cachedItem.review_sentences && cachedItem.review_sentences.length > 0) {
+    return cachedItem
   }
 
   const { data, error } = await supabase
@@ -130,7 +148,11 @@ export async function getGrammarById(id: string): Promise<GrammarItem | null> {
   }
 
   const item = mapGrammarRowToItem(data)
-  grammarCache = grammarCache ? [...grammarCache, item] : [item]
+  grammarByIdCache.set(item.id, item)
+  // Se a lista completa já existe, atualiza o item nela (sem duplicar)
+  if (grammarCache) {
+    grammarCache = grammarCache.map((existing) => (existing.id === item.id ? item : existing))
+  }
   return item
 }
 
@@ -156,7 +178,7 @@ export function findStudyItemById(id: string): StudyItem | undefined {
     return vocabularyMatch
   }
 
-  return grammarCache?.find((item) => item.id === id)
+  return findCachedGrammar(id)
 }
 
 export function getTotalItemsByLevel(level: JLPTLevel): number {

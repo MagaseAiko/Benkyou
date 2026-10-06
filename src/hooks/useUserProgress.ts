@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useEffect, useRef, useState } from 'react'
 import type { ReviewItem, UserProgress, UserProfile } from '../types'
 import { supabase } from '../utils/supabase'
 import { isRLSViolation } from '../utils/auth-helpers'
@@ -64,7 +64,16 @@ function isoToTimestamp(value: string | number): number {
   return Date.now()
 }
 
-export function useUserProgress() {
+// Recarrega em segundo plano ao voltar para a aba, se os dados tiverem mais que isso
+const REFRESH_AFTER_MS = 60 * 1000
+// Frequência com que a lista de revisões "prontas agora" é recalculada
+const DUE_CLOCK_MS = 30 * 1000
+
+/**
+ * Estado do progresso do usuário. Deve ser usado UMA vez, pelo ProgressProvider;
+ * os componentes leem o resultado com useUserProgress().
+ */
+export function useUserProgressState() {
   const { user } = useAuth()
   const [reviewQueue, setReviewQueue] = useState<ReviewItem[]>([])
   const [masteredItems, setMasteredItems] = useState<string[]>([])
@@ -78,6 +87,29 @@ export function useUserProgress() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [reloadToken, setReloadToken] = useState(0)
+  const [now, setNow] = useState(() => Date.now())
+  const loadedUserIdRef = useRef<string | null>(null)
+  const lastLoadedAtRef = useRef(0)
+
+  // Atualiza os dados ao voltar para a aba (ex.: estudou em outro dispositivo)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      setNow(Date.now())
+      if (Date.now() - lastLoadedAtRef.current > REFRESH_AFTER_MS) {
+        setReloadToken((token) => token + 1)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
+  // Revisões agendadas ficam "prontas" com o passar do tempo
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), DUE_CLOCK_MS)
+    return () => window.clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -85,11 +117,14 @@ export function useUserProgress() {
     const loadProgress = async () => {
       try {
         if (!user?.id) {
+          loadedUserIdRef.current = null
           setLoading(false)
           return
         }
 
-        setLoading(true)
+        // Só mostra "carregando" na primeira carga do usuário; recargas são silenciosas
+        const isFirstLoad = loadedUserIdRef.current !== user.id
+        if (isFirstLoad) setLoading(true)
         setError(null)
 
         const { data: reviewData, error: reviewError } = await supabase
@@ -167,6 +202,8 @@ export function useUserProgress() {
             jlptLevel: profileData?.jlpt_level ?? null,
             hasCompletedOnboarding: profileData?.has_completed_onboarding ?? false,
           })
+          loadedUserIdRef.current = user.id
+          lastLoadedAtRef.current = Date.now()
         }
       } catch (err) {
         console.error('Error loading progress:', err)
@@ -185,7 +222,7 @@ export function useUserProgress() {
     return () => {
       isMounted = false
     }
-  }, [user?.id])
+  }, [user?.id, reloadToken])
 
   const upsertReviewItem = useCallback(
     async (item: ReviewItem) => {
@@ -773,18 +810,18 @@ export function useUserProgress() {
     }
   }, [user?.id])
 
-  const progress: UserProgress = {
+  const progress: UserProgress = useMemo(() => ({
     reviewQueue,
     masteredItems,
     studyingItems,
-  }
+  }), [reviewQueue, masteredItems, studyingItems])
 
   const reviewQueueDue = useMemo(() => {
-    const now = Date.now()
+    const dueAt = Math.max(now, Date.now())
     return reviewQueue
-      .filter((item) => item.nextReview <= now)
+      .filter((item) => item.nextReview <= dueAt)
       .sort((a, b) => a.nextReview - b.nextReview)
-  }, [reviewQueue])
+  }, [reviewQueue, now])
 
   const totalMastered = masteredItems.length
   const totalStudying = studyingItems.length
@@ -807,4 +844,20 @@ export function useUserProgress() {
     setLevel,
     completeOnboarding,
   }
+}
+
+export type UserProgressValue = ReturnType<typeof useUserProgressState>
+
+export const ProgressContext = createContext<UserProgressValue | null>(null)
+
+/**
+ * Progresso do usuário compartilhado por todo o app (uma única carga do banco).
+ * Precisa estar dentro de <ProgressProvider>.
+ */
+export function useUserProgress(): UserProgressValue {
+  const context = useContext(ProgressContext)
+  if (!context) {
+    throw new Error('useUserProgress deve ser usado dentro de <ProgressProvider>')
+  }
+  return context
 }

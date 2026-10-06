@@ -79,9 +79,10 @@ export function DashboardPage() {
       .slice(0, 5)
       .map((item) => ({
         ...item,
-        studyItem: findStudyItemById(item.id),
+        // Recalcula quando a lista completa chega (antes mostrava só o id)
+        studyItem: allStudyItems.find((studyItem) => studyItem.id === item.id) ?? findStudyItemById(item.id),
       }))
-  }, [progress.reviewQueue])
+  }, [progress.reviewQueue, allStudyItems])
 
   const statsByLevel = useMemo(() => {
     const studiedSet = new Set([...progress.studyingItems, ...progress.masteredItems])
