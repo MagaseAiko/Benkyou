@@ -167,12 +167,13 @@ export function ReviewPage() {
     }
     setShowCompletionResult(true)
 
-    if (isMock) {
+    // Avisa o tour que a resposta foi verificada (ele avança para o próximo passo)
+    if (isTourActive) {
       setTimeout(() => {
-        window.dispatchEvent(new Event('tour-next-step'))
+        window.dispatchEvent(new Event('tour-review-verified'))
       }, 100)
     }
-  }, [completionSentence, completionAnswer, isMock])
+  }, [completionSentence, completionAnswer, isTourActive])
 
   useEffect(() => {
     const handleForceVerify = () => handleCheckCompletion()

@@ -22,7 +22,7 @@ export function PreferencesCard() {
   const { goal, setGoal } = useDailyGoal(user?.id)
 
   return (
-    <section className="options-card">
+    <section className="options-card tour-preferences">
       <div className="options-card-header">
         <div className="options-card-icon options-card-icon--butter">
           <SlidersHorizontal size={20} strokeWidth={1.8} />
