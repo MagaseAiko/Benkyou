@@ -25,5 +25,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), devApi()],
+    define: {
+      // A chave pública do Web Push não é secreta, mas a Vercel bloqueia nomes
+      // com VITE_ + KEY. Por isso ela é lida sem prefixo e embutida aqui.
+      __VAPID_PUBLIC_KEY__: JSON.stringify(env.VAPID_PUBLIC_KEY ?? ''),
+    },
   }
 })

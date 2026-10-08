@@ -87,7 +87,7 @@ export type ReminderStatus =
   | 'off'
   | 'on'
 
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
+const VAPID_PUBLIC_KEY = __VAPID_PUBLIC_KEY__ || undefined
 
 function isPushSupported() {
   return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window

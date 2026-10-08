@@ -11,7 +11,7 @@ import webpush from 'web-push'
  *
  * Variáveis de ambiente (só no servidor):
  *   SUPABASE_SERVICE_ROLE_KEY, VITE_SUPABASE_URL (ou SUPABASE_URL),
- *   VITE_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT, CRON_SECRET
+ *   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT, CRON_SECRET
  */
 
 // Brasil não tem horário de verão desde 2019: UTC-3 o ano todo
@@ -54,7 +54,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   const supabaseUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const vapidPublic = process.env.VITE_VAPID_PUBLIC_KEY
+  const vapidPublic = process.env.VAPID_PUBLIC_KEY
   const vapidPrivate = process.env.VAPID_PRIVATE_KEY
   const vapidSubject = process.env.VAPID_SUBJECT ?? 'https://benkyou-alpha.vercel.app'
 
