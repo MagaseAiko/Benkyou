@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CalendarDays } from 'lucide-react'
-import { supabase } from '../utils/supabase'
+import { fetchStudyDays } from '../services/activityService'
 import { useAuth } from '../hooks/useAuth'
 import { getLocalDateKey, useDailyGoal } from '../hooks/usePreferences'
 
@@ -50,24 +50,18 @@ export function ActivityCalendar({ lastActivityDate }: Props) {
     if (!user?.id) return
     let isMounted = true
 
-    supabase
-      .from('user_daily_activity')
-      .select('activity_date')
-      .eq('user_id', user.id)
-      .gte('activity_date', firstDayKey)
-      .then(({ data, error }) => {
-        if (!isMounted) return
-        if (error) {
-          console.warn('Não foi possível carregar o histórico de atividade:', error)
-          return
-        }
-        setActiveDays(new Set((data ?? []).map((row: { activity_date: string }) => row.activity_date.slice(0, 10))))
+    fetchStudyDays(user.id, weeks[0][0].date)
+      .then((days) => {
+        if (isMounted) setActiveDays(days)
+      })
+      .catch((error) => {
+        console.warn('Não foi possível carregar o histórico de atividade:', error)
       })
 
     return () => {
       isMounted = false
     }
-  }, [user?.id, firstDayKey])
+  }, [user?.id, firstDayKey, weeks])
 
   // Semana mais recente fica à direita; no celular, rola até ela
   useEffect(() => {

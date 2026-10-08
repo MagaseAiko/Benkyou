@@ -4,6 +4,7 @@ import { supabase } from '../utils/supabase'
 import { isRLSViolation } from '../utils/auth-helpers'
 import { useAuth } from './useAuth'
 import { clearGrammarCache, getAllStudyItems } from '../services/studyDataService'
+import { recordDailyActivity } from '../services/activityService'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const MAX_INTERVAL_DAYS = 365 * 5
@@ -351,6 +352,8 @@ export function useUserProgressState() {
           throw streakError
         }
 
+        void recordDailyActivity(user.id)
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -502,6 +505,8 @@ export function useUserProgressState() {
             }
             throw streakError
           }
+
+          void recordDailyActivity(user.id)
 
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
