@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+  <!-- Kyō-chan (今日ちゃん): o sol do logo, de hachimaki, pronto para estudar -->
+  <defs>
+    <clipPath id="face"><circle cx="48" cy="42" r="23"/></clipPath>
+  </defs>
+  <rect width="96" height="96" fill="#C9B8F5"/>
+
+  <!-- tudo deslocado para centralizar (o Android pode recortar em círculo) -->
+  <g transform="translate(0 4)">
+
+  <!-- raios -->
+  <g stroke="#FFF6E6" stroke-width="4.5" stroke-linecap="round">
+    <path d="M48 9v6"/><path d="M71.3 18.7l-4.2 4.2"/><path d="M81 42h-6"/>
+    <path d="M24.7 18.7l4.2 4.2"/><path d="M15 42h6"/>
+  </g>
+
+  <!-- fitas do hachimaki ao vento -->
+  <path d="M70 30c6-1 10 1 14-3-1 5-5 8-11 8z" fill="#F2B9C9" stroke="#2A2333" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M70 32c5 3 8 7 13 7-3 4-8 4-13-1z" fill="#F2B9C9" stroke="#2A2333" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- rosto -->
+  <circle cx="48" cy="42" r="23" fill="#FFF6E6" stroke="#2A2333" stroke-width="2.5"/>
+  <g clip-path="url(#face)">
+    <rect x="20" y="25" width="56" height="7.5" fill="#F2B9C9"/>
+    <path d="M20 25h56M20 32.5h56" stroke="#2A2333" stroke-width="2"/>
+    <circle cx="48" cy="28.75" r="2.4" fill="#E0627F"/>
+  </g>
+  <circle cx="48" cy="42" r="23" fill="none" stroke="#2A2333" stroke-width="2.5"/>
+
+  <!-- olhos sorridentes, bochechas e sorriso -->
+  <path d="M37.5 40.5q3.5-3 7 0" fill="none" stroke="#2A2333" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M51.5 40.5q3.5-3 7 0" fill="none" stroke="#2A2333" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="35" cy="47.5" rx="4" ry="2.4" fill="#F2B9C9"/>
+  <ellipse cx="61" cy="47.5" rx="4" ry="2.4" fill="#F2B9C9"/>
+  <path d="M43.5 47.5q4.5 5.5 9 0z" fill="#2A2333" stroke="#2A2333" stroke-width="1.6" stroke-linejoin="round"/>
+
+  <!-- livro aberto (o mesmo do logo) -->
+  <path d="M16 63c10.5-4.6 21.6-4.6 32 1.3 10.4-5.9 21.5-5.9 32-1.3v13c-10.5-4.6-21.6-4.6-32 1.3-10.4-5.9-21.5-5.9-32-1.3z" fill="#2A2333"/>
+  <path d="M20 63.4c9.2-3.2 18.6-2.8 27 1.6v3.2c-8.4-4.4-17.8-4.8-27-1.6z" fill="#FFF6E6"/>
+  <path d="M76 63.4c-9.2-3.2-18.6-2.8-27 1.6v3.2c8.4-4.4 17.8-4.8 27-1.6z" fill="#FFF6E6"/>
+
+  <!-- mãozinhas segurando o livro -->
+  <circle cx="29" cy="62" r="4.6" fill="#FFF6E6" stroke="#2A2333" stroke-width="2.2"/>
+  <circle cx="67" cy="62" r="4.6" fill="#FFF6E6" stroke="#2A2333" stroke-width="2.2"/>
+  </g>
+</svg>

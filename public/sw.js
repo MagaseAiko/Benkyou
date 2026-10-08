@@ -79,8 +79,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body: payload.body || 'Hora de revisar!',
-      icon: '/icons/icon-192.png',
-      badge: '/icons/badge-96.png',
+      icon: '/icons/mascot-192.png', // Kyō-chan, o mascote (imagem à direita)
+      badge: '/icons/badge-96.png', // silhueta pequena da barra de status
       tag: 'daily-reminder', // substitui o lembrete anterior em vez de empilhar
       renotify: true,
       data: { url: payload.url || '/review' },
