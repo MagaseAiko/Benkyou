@@ -387,3 +387,37 @@
     width: 100%;
   }
 }
+
+/* ── App e lembretes ── */
+.options-card-icon--mint {
+  background: var(--mint);
+}
+
+.app-card__installed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-full);
+  background: var(--mint-soft);
+  border: 1px solid var(--rule-strong);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.app-card__inline-icon {
+  display: inline-block;
+  vertical-align: -2px;
+}
+
+.app-card__error {
+  margin-top: 0.25rem;
+  color: var(--rose-ink);
+  font-size: 0.82rem;
+}
+
+.switch:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}

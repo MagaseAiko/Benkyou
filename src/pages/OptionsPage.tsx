@@ -5,6 +5,7 @@ import { useUserProgress } from '../hooks/useUserProgress'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
 import { PreferencesCard } from '../components/PreferencesCard'
+import { AppCard } from '../components/AppCard'
 import { supabase } from '../utils/supabase'
 import {
   User,
@@ -375,6 +376,8 @@ export function OptionsPage() {
         </section>
 
         <PreferencesCard />
+
+        <AppCard />
 
         {/* Progress Section */}
         <section className="options-card">
