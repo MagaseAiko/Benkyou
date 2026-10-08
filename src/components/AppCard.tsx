@@ -8,8 +8,8 @@ const REMINDER_DESCRIPTION: Record<string, string> = {
   unsupported: 'Este navegador não suporta notificações. No iPhone, instale o app primeiro (iOS 16.4 ou mais recente).',
   'not-configured': 'As notificações ainda não foram configuradas no servidor.',
   denied: 'As notificações estão bloqueadas. Libere-as nas configurações do navegador para este site.',
-  off: 'Receba um aviso todo dia às 9h quando houver revisões pendentes.',
-  on: 'Ativado: você recebe um aviso às 9h quando houver revisões pendentes.',
+  off: 'Receba avisos às 9h e às 18h quando houver revisões pendentes.',
+  on: 'Ativado: você recebe avisos às 9h e às 18h quando houver revisões pendentes.',
 }
 
 export function AppCard() {
