@@ -14,6 +14,7 @@ import { OnboardingPage } from './pages/OnboardingPage'
 import { SystemTour } from './components/SystemTour'
 import { UserProgressProvider } from './contexts/UserProgressContext'
 import { ProgressProvider } from './contexts/ProgressProvider'
+import { UpdateBanner } from './components/UpdateBanner'
 import './App.css'
 
 export default function App() {
@@ -57,6 +58,7 @@ export default function App() {
           />
         </Routes>
       </BrowserRouter>
+      <UpdateBanner />
     </UserProgressProvider>
   )
 }

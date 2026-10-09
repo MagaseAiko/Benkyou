@@ -6,7 +6,9 @@
  * Os dados (Supabase, /api) sempre vêm da rede: nada de progresso fica em cache.
  */
 
-const CACHE = 'benkyou-shell-v1'
+// "__BUILD_VERSION__" é trocado pela versão do deploy no build (vite.config.ts).
+// Como o sw.js muda a cada deploy, o navegador instala o novo e apaga o cache antigo.
+const CACHE = 'benkyou-shell-__BUILD_VERSION__'
 const APP_SHELL = ['/', '/manifest.webmanifest', '/logo.svg', '/icons/icon-192.png']
 
 self.addEventListener('install', (event) => {
@@ -21,6 +23,11 @@ self.addEventListener('activate', (event) => {
       .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim()),
   )
+})
+
+// O app pode pedir para o service worker novo assumir na hora
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('fetch', (event) => {

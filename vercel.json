@@ -2,6 +2,12 @@
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
+  "headers": [
+    {
+      "source": "/(sw.js|version.json|manifest.webmanifest)",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    }
+  ],
   "crons": [
     { "path": "/api/send-reminders", "schedule": "0 12 * * *" },
     { "path": "/api/send-reminders-evening", "schedule": "0 21 * * *" }
